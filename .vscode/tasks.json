@@ -1,0 +1,43 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "C/C++: g++.exe build active file",
+            "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
+            "args": [
+                "-std=c++23",
+                "-Wall", "-Wextra", // warnings
+                "-fdiagnostics-color=always", // colour
+                "-g", // build with debug info
+                // "-IC:\\msys64\\usr\\local\\include",
+                // "-IC:\\msys64\\ucrt64\\include",
+                // "-IC:\\msys64\\ucrt64\\lib",
+                // "-IC:\\msys64\\ucrt64\\bin",
+                "${file}", // source file to compile
+                "-o",
+                "${fileDirname}\\${fileBasenameNoExtension}.exe"
+                // "${fileDirname}\\build\\${fileBasenameNoExtension}.exe"
+                // https://code.visualstudio.com/docs/editor/variables-reference
+            ],
+            "options": {
+                "cwd": "C:\\msys64\\ucrt64\\bin"
+                // "cwd": "D:\\test2"
+                // "cwd": "${fileDirname}" 
+                // "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                // "isDefault": true
+                "isDefault": "**/*.{cpp,cxx}" // adjust globbing as neede
+            },
+            "detail": "output file goes under ./build/"
+        }
+    ],
+    "version": "2.0.0"
+}
+
+// https://code.visualstudio.com/docs/cpp/config-mingw
+// https://medium.com/code-art/finally-i-can-use-vscode-for-c-c-development-with-mysy2-on-windows-in-a-comfortable-way-be65c5d0c19e
