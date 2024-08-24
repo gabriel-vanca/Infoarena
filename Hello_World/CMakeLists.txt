@@ -5,7 +5,7 @@ project(
     Hello_World
     VERSION 0.0.1
     DESCRIPTION ""
-    HOMEPAGE_URL "%%myurl%%"
+    HOMEPAGE_URL ""
     LANGUAGES C CXX)
 
 # include(CTest)
