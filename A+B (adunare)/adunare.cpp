@@ -1,11 +1,12 @@
 #include <iostream>
 #include <fstream>
-#include <filesystem>
 
-int main() {
+int main()
+{
     // Open the input file
     std::ifstream inputFile("adunare.in");
-    if (!inputFile) {
+    if (!inputFile)
+    {
         std::cerr << "Failed to open input file." << std::endl;
         return 1;
     }
@@ -22,7 +23,8 @@ int main() {
 
     // Open the output file
     std::ofstream outputFile("adunare.out");
-    if (!outputFile) {
+    if (!outputFile)
+    {
         std::cerr << "Failed to open output file." << std::endl;
         return 1;
     }
