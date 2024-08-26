@@ -23,3 +23,7 @@ Society for Excellence and Performance in Computing](https://sepi.ro/page/oni202
 Education - Compiler Info 2024](https://www.edu.ro/sites/default/files/_fi%C8%99iere/Minister/2024/olimpiade_concursuri_24/regulamente_olimpiade/Regulament_ONI_2024.pdf)
 * [Departament of
 Education - Compiler Info 2015](https://olimpiada.info/oji2015/precizari2015.pdf)
+* [G++ Options That Control Optimization](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html)
+* [G++ Options to Request or Suppress Warnings](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wshadow)
+* [G++ Options Summary](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html)
+* [G++ Cheatsheet (USC)](https://bytes.usc.edu/cs104/wiki/gcc#:~:text=You%20can%20use%20the%20%2DO2,std%3Dc%2B%2B17%20main.)
