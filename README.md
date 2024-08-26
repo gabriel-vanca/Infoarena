@@ -1,6 +1,6 @@
 # Infoarena
 
-Solved Algorithm & Data Structure problems for Infoarena.ro, the biggest Romanian online community helping thousands of young students learn and train for national and international Computer Science contests, supported by a team of former Olympic students.
+Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena.ro/arhiva-educationala), the biggest Romanian online community helping thousands of young students learn and train for national and international Computer Science contests, supported by a team of former Olympic students.
 
 <div style="text-align:center"> <img src="Docs/Images/Cpp_logo.svg" alt="C++" width="130"/> <img src="Docs/Images/Rust_logo.png" alt="Rust" width="154"/> <img src="Docs/Images/Python_logo.svg" alt="Python" width="156"/> <img src="Docs/Images/C_logo.svg" alt="C" width="148"/> <img src="Docs/Images/Java_logo.svg" alt="Java" width="150"/> </div>
 
