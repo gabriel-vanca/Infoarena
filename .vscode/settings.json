@@ -1,5 +1,6 @@
 {
   "cmake.configureOnOpen": false,
-  "cmake.sourceDirectory": "D:/OneDrive - ANDROMEDA/Git Repositories/Infoarena/A+B (adunare)",
-  // "cmake.sourceDirectory": "D:/OneDrive - ANDROMEDA/Git Repositories/Infoarena/Hello_World",
+  "cSpell.words": [
+    "Infoarena"
+  ],
 }
