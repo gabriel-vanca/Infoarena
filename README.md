@@ -36,7 +36,7 @@ Solved Algorithm & Data Structure problems for Infoarena.ro, the biggest Romania
 
 * [Infoarena - Compiler Info](https://www.infoarena.ro/documentatie/evaluator)
 * [National
-Society for Excellence and Performance in Computing](https://sepi.ro/page/oni2024regulament)
+Society for Excellence and Performance in Computing (SEPI)](https://sepi.ro/page/oni2024regulament)
 * [Departament of
 Education - Compiler Info 2024](https://www.edu.ro/sites/default/files/_fi%C8%99iere/Minister/2024/olimpiade_concursuri_24/regulamente_olimpiade/Regulament_ONI_2024.pdf)
 * [Departament of
