@@ -1,7 +1,7 @@
 #include <cstdio>
 #include <iostream>
-#include <vector>
 #include <string>
+#include <vector>
 
 using namespace std;
 
@@ -11,14 +11,18 @@ int main()
 
     vector<string> msg{"Hello", "C++", "World", "from", "VS Code", "and the C++ extension!"};
 
-    for (const string &word : msg)
+    for (const string& word : msg)
     {
         printf("%s ", word.c_str());
-        //  std::print(" ",word);
+    }
+    printf("\n\n");
+
+    for (const string& word : msg)
+    {
         cout << word << " ";
     }
-    cout << endl
-         << endl;
+
+    cout << endl << endl;
 
     return 0;
 }
