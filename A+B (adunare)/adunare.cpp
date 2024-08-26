@@ -5,7 +5,7 @@ int main()
 {
     // Open the input file
     std::ifstream inputFile("adunare.in");
-    if (!inputFile)
+    if (!inputFile || inputFile.fail() || inputFile.bad())
     {
         std::cerr << "Failed to open input file." << std::endl;
         return 1;
@@ -23,15 +23,10 @@ int main()
 
     // Open the output file
     std::ofstream outputFile("adunare.out");
-    if (!outputFile)
+    if (!outputFile || outputFile.fail() || outputFile.bad() || !outputFile.is_open())
     {
         std::cerr << "Failed to open output file." << std::endl;
         return 1;
-    }
-
-    if (outputFile.fail())
-    {
-        std::cout << "Failed to open output file.\n";
     }
 
     // Write the sum to the output file
