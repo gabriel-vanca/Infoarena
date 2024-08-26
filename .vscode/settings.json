@@ -1,6 +1,12 @@
 {
   "cmake.configureOnOpen": false,
   "cSpell.words": [
-    "Infoarena"
+    "DINFOARENA",
+    "fdiagnostics",
+    "Infoarena",
+    "Wconversion",
+    "Wextra",
+    "Wpedantic",
+    "Wshadow"
   ],
 }

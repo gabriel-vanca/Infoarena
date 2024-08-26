@@ -14,6 +14,23 @@ Solved Algorithm & Data Structure problems for Infoarena.ro, the biggest Romania
 | Infoarena                    | GNU G++ 10.2.0                             | g++ -std=c++14 -DINFOARENA -Wall -O2 -static … -lm                                                     | Debian 11        |
 | Departament of<br> Education | GNU C++                                    | g++ -std=c++11 -Wall -O2                                                                               | Windows<br>Linux |
 
+### Parameter Info
+``` powershell
+    -std=c++23 # standard
+    -Wall # base warnings
+    -Wextra # extended warnings
+    -Wpedantic # issues all warnings demanded by strict ISO C++ rules
+    -Wconversion # Warn for implicit conversions that may alter a value
+    -Wshadow # Warn whenever a local variable or type declaration shadows another variable, parameter, type, class member (in C++), or instance variable (in Objective-C) or whenever a built-in function is shadowed. Variable shadowing occurs when a variable declared within an inner scope has the same name as a variable declared in an outer scope. This causes the inner variable to “shadow” the outer one, making the outer variable temporarily inaccessible within that inner scope.
+    -O3 # optimize code and check for errors in parallel to find potential bugs
+    -fdiagnostics-color=always # colour
+    -g # build with debug info (You will need this when you want to use gdb or valgrind)
+    -IC:\\msys64\\ucrt64\\bin # libraries to include (C:\\msys64\\ucrt64\\bin) (can be repeated)
+    ${file} # source file to compile
+    -o # set output
+    ${fileDirname}\\${fileBasenameNoExtension}.exe  # output file name and location
+```
+
 ### Sources
 
 * [Infoarena - Compiler Info](https://www.infoarena.ro/documentatie/evaluator)
