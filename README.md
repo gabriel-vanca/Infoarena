@@ -11,3 +11,13 @@ Solved Algorithm & Data Structure problems for Infoarena.ro, the biggest Romania
 | Repo                         | GNU G++ 14.1.0<br>or higher | g++ -std=c++14 <br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br>-O3 -fdiagnostics-color=always -g | Windows 11       |
 | Infoarena                    | GNU G++ 10.2.0              | g++ -DINFOARENA -Wall -O2 -std=c++14 -static … -lm                                                     | Debian 11        |
 | Departament of<br> Education | GNU C++                     | g++ -std=c++11 -Wall -O2                                                                               | Windows<br>Linux |
+
+### Sources
+
+* [Infoarena - Compiler Info](https://www.infoarena.ro/documentatie/evaluator)
+* [National
+Society for Excellence and Performance in Computing](https://sepi.ro/page/oni2024regulament)
+* [Departament of
+Education - Compiler Info 2024](https://www.edu.ro/sites/default/files/_fi%C8%99iere/Minister/2024/olimpiade_concursuri_24/regulamente_olimpiade/Regulament_ONI_2024.pdf)
+* [Departament of
+Education - Compiler Info 2015](https://olimpiada.info/oji2015/precizari2015.pdf)
