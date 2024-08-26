@@ -8,11 +8,11 @@ Solved Algorithm & Data Structure problems for Infoarena.ro, the biggest Romania
 
 ## C++ Compile & Build Configurations
 
-|                              | Compiler                    | Configuration                                                                                          | OS               |
-|------------------------------|-----------------------------|--------------------------------------------------------------------------------------------------------|------------------|
-| Repo                         | GNU G++ 14.1.0<br>or higher | g++ -std=c++14 <br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br>-O3 -fdiagnostics-color=always -g | Windows 11       |
-| Infoarena                    | GNU G++ 10.2.0              | g++ -std=c++14 -DINFOARENA -Wall -O2 -static … -lm                                                     | Debian 11        |
-| Departament of<br> Education | GNU C++                     | g++ -std=c++11 -Wall -O2                                                                               | Windows<br>Linux |
+|                              | Compiler                                   | Configuration                                                                                          | OS               |
+|------------------------------|--------------------------------------------|--------------------------------------------------------------------------------------------------------|------------------|
+| Repo                         | GNU G++ 14.1.0<br>(or whichever is latest) | g++ -std=c++14 <br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br>-O3 -fdiagnostics-color=always -g | Windows 11       |
+| Infoarena                    | GNU G++ 10.2.0                             | g++ -std=c++14 -DINFOARENA -Wall -O2 -static … -lm                                                     | Debian 11        |
+| Departament of<br> Education | GNU C++                                    | g++ -std=c++11 -Wall -O2                                                                               | Windows<br>Linux |
 
 ### Sources
 
