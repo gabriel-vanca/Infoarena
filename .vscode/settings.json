@@ -5,6 +5,7 @@
     "fdiagnostics",
     "Infoarena",
     "SEPI",
+    "valgrind",
     "Wconversion",
     "Wextra",
     "Wpedantic",
