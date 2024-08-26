@@ -15,6 +15,7 @@ Solved Algorithm & Data Structure problems for Infoarena.ro, the biggest Romania
 | Departament of<br> Education | GNU C++                                    | g++ -std=c++11 -Wall -O2                                                                               | Windows<br>Linux |
 
 ### Parameter Info
+
 ``` powershell
     -std=c++23 # standard
     -Wall # base warnings
