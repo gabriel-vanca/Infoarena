@@ -1,4 +1,4 @@
-#include <cstdio>
+#include <algorithm>
 #include <iostream>
 #include <string>
 #include <vector>
@@ -19,7 +19,11 @@ int main()
 
     for (const string& word : msg)
     {
-        cout << word << " ";
+        string tempstr;
+        copy(word.begin(), word.end(), back_inserter(tempstr));
+        // https://stackoverflow.com/questions/54297642/why-use-stdback-inserter-instead-of-end-during-stdcopy
+        std::transform(tempstr.begin(), tempstr.end(), tempstr.begin(), ::toupper);
+        cout << tempstr << " ";
     }
 
     cout << endl << endl;

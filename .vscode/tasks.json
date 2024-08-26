@@ -6,9 +6,14 @@
             "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-std=c++23",
-                "-Wall", "-Wextra", // warnings
+                "-Wall", // base warnings
+                "-Wextra", // extended warnings
+                "-Wpedantic", // issues all warnings demanded by strict ISO C++ rules
+                "-Wconversion", // Warn for implicit conversions that may alter a value
+                "-Wshadow", // Warn whenever a local variable or type declaration shadows another variable, parameter, type, class member (in C++), or instance variable (in Objective-C) or whenever a built-in function is shadowed. Variable shadowing occurs when a variable declared within an inner scope has the same name as a variable declared in an outer scope. This causes the inner variable to “shadow” the outer one, making the outer variable temporarily inaccessible within that inner scope.
+                "-O3", // optimize code and check for errors in parallel to find potential bugs
                 "-fdiagnostics-color=always", // colour
-                "-g", // build with debug info
+                "-g", // build with debug info (You will need this when you want to use gdb or valgrind)
                 // "-IC:\\msys64\\usr\\local\\include",
                 // "-IC:\\msys64\\ucrt64\\include",
                 // "-IC:\\msys64\\ucrt64\\lib",
@@ -41,3 +46,7 @@
 
 // https://code.visualstudio.com/docs/cpp/config-mingw
 // https://medium.com/code-art/finally-i-can-use-vscode-for-c-c-development-with-mysy2-on-windows-in-a-comfortable-way-be65c5d0c19e
+// https://bytes.usc.edu/cs104/wiki/gcc#:~:text=You%20can%20use%20the%20%2DO2,std%3Dc%2B%2B17%20main.
+// https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html
+// https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html
+// https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wshadow
