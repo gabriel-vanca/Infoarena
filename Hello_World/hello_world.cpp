@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include <cstdio>
 
 using namespace std;
 
@@ -23,10 +24,9 @@ int main()
         copy(word.begin(), word.end(), back_inserter(tempstr));
         // https://stackoverflow.com/questions/54297642/why-use-stdback-inserter-instead-of-end-during-stdcopy
         std::transform(tempstr.begin(), tempstr.end(), tempstr.begin(), ::toupper);
-        cout << tempstr << " ";
+        printf("%s ", tempstr.c_str());
     }
-
-    cout << endl << endl;
+    printf("\n\n");
 
     return 0;
 }
