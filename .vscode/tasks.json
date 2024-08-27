@@ -5,7 +5,7 @@
             "label": "C/C++: g++.exe build active file",
             "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
-                "-std=c++23",
+                "-std=c++14",
                 "-Wall", // base warnings
                 "-Wextra", // extended warnings
                 "-Wpedantic", // issues all warnings demanded by strict ISO C++ rules
