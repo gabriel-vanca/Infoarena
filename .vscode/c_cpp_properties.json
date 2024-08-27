@@ -14,8 +14,8 @@
         "UNICODE",
         "_UNICODE"
     ] ,
-      "cStandard": "c23",
-      "cppStandard": "c++23",
+      "cStandard": "c11",
+      "cppStandard": "c++14",
       "intelliSenseMode": "linux-gcc-x64",
       "compilerPath": "C:\\msys64\\ucrt64\\bin\\g++.exe",
       "compilerArgs": [

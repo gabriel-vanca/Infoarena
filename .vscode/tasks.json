@@ -25,9 +25,8 @@
                 // https://code.visualstudio.com/docs/editor/variables-reference
             ],
             "options": {
-                "cwd": "C:\\msys64\\ucrt64\\bin"
-                // "cwd": "D:\\test2"
-                // "cwd": "${fileDirname}" 
+                // "cwd": "C:\\msys64\\ucrt64\\bin"
+                "cwd": "${fileDirname}" 
                 // "cwd": "${workspaceFolder}"
             },
             "problemMatcher": [

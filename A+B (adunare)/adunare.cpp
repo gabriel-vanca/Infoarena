@@ -30,6 +30,7 @@ int main()
     }
 
     // Write the sum to the output file
+
     outputFile << sum << std::endl;
 
     // Close the output file

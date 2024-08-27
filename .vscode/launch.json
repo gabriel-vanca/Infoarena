@@ -30,7 +30,7 @@
             "ignoreFailures": true
           }
         ],
-        "preLaunchTask": "C/C++: gcc.exe build active file"
+        "preLaunchTask": "C/C++: g++.exe build active file" // ,=make sure this matches exactly the LABEL field in tasks.json
       }
     ],
     "version": "2.0.0"

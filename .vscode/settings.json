@@ -5,6 +5,7 @@
     "fdiagnostics",
     "Infoarena",
     "SEPI",
+    "tempstr",
     "valgrind",
     "Wconversion",
     "Wextra",
