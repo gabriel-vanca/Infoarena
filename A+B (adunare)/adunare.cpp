@@ -24,8 +24,6 @@ std::ifstream GetReadFile()
         {
             std::cerr << "Error details: " << strerror(errno) << std::endl;
         }
-
-        return nullptr;
     }
     return inputFile;
 }
@@ -46,19 +44,52 @@ std::ofstream GetWriteFile()
         {
             std::cerr << "Error details: " << strerror(errno) << std::endl;
         }
-        return nullptr;
     }
     return outputFile;
 }
 
+#ifdef PROFILING
+class Profiling
+{
+private:
+    std::chrono::time_point<std::chrono::system_clock> t1, t2;
+    std::chrono::duration<double, std::milli> ms_double;
+    const char* functionName;
+
+public:
+    Profiling(const char* str)
+    {
+        ms_double = std::chrono::duration<double, std::milli>(-1);
+        functionName = str;
+        Begin_Profiling();
+    }
+
+    void Begin_Profiling()
+    {
+        t1 = std::chrono::high_resolution_clock::now();
+    }
+
+    void End_Profiling()
+    {
+        t2 = std::chrono::high_resolution_clock::now();
+
+        /* Getting number of milliseconds as a double. */
+        ms_double = t2 - t1;
+
+        Show_Profiling_Results();
+    }
+
+    void Show_Profiling_Results()
+    {
+        std::cout << functionName << " : " << ms_double.count() << "ms\n";
+    }
+};
+#endif
+
 int main()
 {
 #ifdef PROFILING
-    using std::chrono::high_resolution_clock;
-    using std::chrono::duration_cast;
-    using std::chrono::duration;
-    using std::chrono::milliseconds;
-    auto t1 = high_resolution_clock::now();
+    Profiling profiling = Profiling(__FUNCTION__);
 #endif
 
     std::ifstream inputFile = GetReadFile();
@@ -83,16 +114,7 @@ int main()
     outputFile.close();
 
 #ifdef PROFILING
-    auto t2 = high_resolution_clock::now();
-
-    /* Getting number of milliseconds as an integer. */
-    auto ms_int = duration_cast<milliseconds>(t2 - t1);
-
-    /* Getting number of milliseconds as a double. */
-    duration<double, std::milli> ms_double = t2 - t1;
-
-    std::cout << ms_int.count() << "ms\n";
-    std::cout << ms_double.count() << "ms\n";
+    profiling.End_Profiling();
 #endif
 
     return 0;
