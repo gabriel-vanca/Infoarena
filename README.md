@@ -8,11 +8,11 @@ Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena
 
 ## C++ Compile & Build Configurations
 
-|                              | Compiler       | Configuration                                                                                          | OS               |
-|------------------------------|----------------|--------------------------------------------------------------------------------------------------------|------------------|
-| Repo                         | GNU G++ 14.1.0 | g++ -std=c++14 -O3<br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br> -fdiagnostics-color=always -g | Windows 11       |
-| Infoarena                    | GNU G++ 10.2.0 | g++ -std=c++14 -Wall -O2<br>-DINFOARENA<br> -static … -lm                                              | Debian 11        |
-| Departament <br>of Education | GNU G++        | g++ -std=c++11 -Wall -O2                                                                               | Windows<br>Linux |
+|                              | Compiler       | Configuration                                                                                                      | OS               |
+|------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|------------------|
+| Repo                         | GNU G++ 14.1.0 | g++ -std=c++14 -O3<br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br> -fdiagnostics-color=always -DPROFILING -g | Windows 11       |
+| Infoarena                    | GNU G++ 10.2.0 | g++ -std=c++14 -Wall -O2<br>-DINFOARENA<br> -static … -lm                                                          | Debian 11        |
+| Departament <br>of Education | GNU G++        | g++ -std=c++11 -Wall -O2                                                                                           | Windows<br>Linux |
 
 ### Parameter Info
 
