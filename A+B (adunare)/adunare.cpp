@@ -4,7 +4,7 @@
 #include <fstream>
 #include <iostream>
 
-constexpr char INPUT_FILE_NAME[] = "adunare.in";
+constexpr char INPUT_FILE_NAME[]  = "adunare.in";
 constexpr char OUTPUT_FILE_NAME[] = "adunare.out";
 
 std::ifstream GetInputStream()
@@ -55,48 +55,48 @@ std::ofstream GetOutputStream()
 #ifdef PROFILING
 class Profiling
 {
-private:
-    std::chrono::time_point<std::chrono::system_clock> time_begin, time_end;
-    std::chrono::duration<double, std::nano> duration_nano;
-    const char* functionName;
+    private:
+        std::chrono::time_point<std::chrono::system_clock> time_begin, time_end;
+        std::chrono::duration<double, std::nano>           duration_nano;
+        const char*                                        functionName;
 
-public:
-    Profiling(const char* _functionName)
-    {
-        this->functionName = _functionName;
-        Begin_Profiling();
-    }
+    public:
+        Profiling(const char* _functionName)
+        {
+            this->functionName = _functionName;
+            Begin_Profiling();
+        }
 
-    void Begin_Profiling()
-    {
-        time_begin = std::chrono::high_resolution_clock::now();
-    }
+        void Begin_Profiling()
+        {
+            time_begin = std::chrono::high_resolution_clock::now();
+        }
 
-    void End_Profiling()
-    {
-        time_end = std::chrono::high_resolution_clock::now();
+        void End_Profiling()
+        {
+            time_end = std::chrono::high_resolution_clock::now();
 
-        /* Getting number of nanoseconds as a double. */
-        duration_nano = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_begin);
+            /* Getting number of nanoseconds as a double. */
+            duration_nano = std::chrono::duration_cast<std::chrono::nanoseconds>(time_end - time_begin);
 
-        Show_Profiling_Results();
-    }
+            Show_Profiling_Results();
+        }
 
-    void Show_Profiling_Results()
-    {
-        std::cout << functionName << " : "
-            << duration_nano.count() / 1000000 << "ms | "
-            << duration_nano.count() / 1000 << "\xE6s | "
-            << duration_nano.count() << "ns\n";
-    }
+        void Show_Profiling_Results()
+        {
+            std::cout << functionName << " : "
+                    << duration_nano.count() / 1000000 << "ms | "
+                    << duration_nano.count() / 1000 << "\xE6s | "
+                    << duration_nano.count() << "ns\n";
+        }
 };
 #endif
 
 int main()
 {
-#ifdef PROFILING
+    #ifdef PROFILING
     Profiling profiling = Profiling(__FUNCTION__);
-#endif
+    #endif
 
     std::ifstream inputFile = GetInputStream();
 
@@ -117,9 +117,9 @@ int main()
     // Close the output inputFile
     outputFile.close();
 
-#ifdef PROFILING
+    #ifdef PROFILING
     profiling.End_Profiling();
-#endif
+    #endif
 
     return 0;
 }
