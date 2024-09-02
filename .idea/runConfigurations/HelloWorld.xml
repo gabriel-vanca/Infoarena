@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="HelloWorld" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/Hello_World" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Infoarena" TARGET_NAME="hello_world.cpp" CONFIG_NAME="HelloWorld">
-    <option name="compilerOptions" value="-std=c++14 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -O3 -fdiagnostics-color=always -g" />
+    <option name="compilerOptions" value="-std=c++14 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -O3 -fdiagnostics-color=always -DPROFILING -g" />
     <option name="sourceFile" value="D:\OneDrive - ANDROMEDA\Git Repositories\Infoarena\Hello_World\hello_world.cpp" />
     <method v="2">
       <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />

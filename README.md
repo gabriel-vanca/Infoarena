@@ -25,6 +25,7 @@ Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena
     -Wshadow # Warn whenever a local variable or type declaration shadows another variable, parameter, type, class member (in C++), or instance variable (in Objective-C) or whenever a built-in function is shadowed. Variable shadowing occurs when a variable declared within an inner scope has the same name as a variable declared in an outer scope. This causes the inner variable to “shadow” the outer one, making the outer variable temporarily inaccessible within that inner scope.
     -O3 # optimize code and check for errors in parallel to find potential bugs
     -fdiagnostics-color=always # colour
+    -DPROFILING # enable profiling
     -g # build with debug info (You will need this when you want to use gdb or valgrind)
     -IC:\\msys64\\ucrt64\\bin # libraries to include (C:\\msys64\\ucrt64\\bin) (can be repeated)
     ${file} # source file to compile
