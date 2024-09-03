@@ -3,6 +3,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 
 constexpr char INPUT_FILE_NAME[]  = "adunare.in";
 constexpr char OUTPUT_FILE_NAME[] = "adunare.out";
@@ -13,7 +14,7 @@ class IO_LEGACY
         FILE* IN  = nullptr;
         FILE* OUT = nullptr;
 
-        enum StreamType
+        enum class StreamType
         {
             READ,
             WRITE
@@ -21,8 +22,8 @@ class IO_LEGACY
 
         IO_LEGACY(const char input_file_name[], const char output_file_name[])
         {
-            IN  = GetStream(input_file_name, READ);
-            OUT = GetStream(output_file_name, WRITE);
+            IN  = GetStream(input_file_name, StreamType::READ);
+            OUT = GetStream(output_file_name, StreamType::WRITE);
         }
 
         void Close_IN() const
@@ -35,65 +36,64 @@ class IO_LEGACY
             CloseStream(OUT);
         }
 
+        // https://cplusplus.com/reference/system_error/errc/
+        std::unordered_map<int, const std::string> const FILE_OPEN_ERROR = {
+            {ENOENT, "File does not exist."},
+            {EACCES, "Permission denied."},
+            {EEXIST, "File already exists."},
+            {EISDIR, "File is a directory."},
+            {ENOSPC, "No space left on device."},
+            {EROFS, "Read-only file system."},
+            {ETXTBSY, "Text file busy."},
+            {-1, "Unlisted error type."},
+            {0, "No error."}
+        };
+
+        void PrintError(const char* const _file_name, const int _error_num, const std::string& _error_source) const
+        {
+            int error_code = -1;
+            if (FILE_OPEN_ERROR.find(_error_num) != FILE_OPEN_ERROR.end())
+            {
+                error_code = _error_num;
+            }
+            fprintf(stderr,
+                    "%s file: %s\nERROR: %s\n       %s\n",
+                    _error_source.c_str(),
+                    _file_name,
+                    strerror(errno),
+                    FILE_OPEN_ERROR.at(error_code).c_str());
+        }
+
     private:
-        static FILE* GetStream(const char fileName[], const StreamType _streamType)
+        FILE* GetStream(const char fileName[], const StreamType _streamType) const
         {
             const char* _mode = nullptr;
+            std::string _error_file_type;
             switch (_streamType)
             {
-                case READ:
+                case StreamType::READ:
                     {
-                        _mode = "r";
+                        _mode            = "r";
+                        _error_file_type = "input";
                         break;
                     }
-                case WRITE:
+                case StreamType::WRITE:
                     {
-                        _mode = "w";
+                        _mode            = "w";
+                        _error_file_type = "output";
                         break;
                     }
             }
             FILE* _file = fopen(fileName, _mode);
             if (!_file)
             {
-                // https://cplusplus.com/reference/system_error/errc/
-                fprintf(stderr,
-                        "Failed to open file: %s\nERROR: %s\n       ",
-                        fileName,
-                        strerror(errno));
-                switch (errno)
-                {
-                    case ENOENT:
-                        fprintf(stderr, "File does not exist.\n");
-                        break;
-                    case EACCES:
-                        fprintf(stderr, "Permission denied.\n");
-                        break;
-                    case EEXIST:
-                        fprintf(stderr, "File already exists.\n");
-                        break;
-                    case EISDIR:
-                        fprintf(stderr, "File is a directory.\n");
-                        break;
-                    case ENOSPC:
-                        fprintf(stderr, "No space left on device.\n");
-                        break;
-                    case EROFS:
-                        fprintf(stderr, "Read-only file system.\n");
-                        break;
-                    case ETXTBSY:
-                        fprintf(stderr, "Text file busy.\n");
-                        break;
-                    default:
-                        fprintf(stderr, "Unlisted error type.\n");
-                        break;
-                }
-
+                PrintError(fileName, errno, "Failed to open " + _error_file_type);
                 assert(_file);
             }
 
             if (std::ferror(_file))
             {
-                fprintf(stderr, "Error handling stream in file: %s\nERROR: %s\n", fileName, strerror(errno));
+                PrintError(fileName, errno, ": Error handling stream " + _error_file_type);
                 assert(false);
             }
 
@@ -129,47 +129,68 @@ class IO
             OUT.close();
         }
 
+        // https://cplusplus.com/reference/system_error/errc/
+        std::unordered_map<int, const std::string> const FILE_OPEN_ERROR = {
+            {ENOENT, "File does not exist."},
+            {EACCES, "Permission denied."},
+            {EEXIST, "File already exists."},
+            {EISDIR, "File is a directory."},
+            {ENOSPC, "No space left on device."},
+            {EROFS, "Read-only file system."},
+            {ETXTBSY, "Text file busy."},
+            {-1, "Unlisted error type."},
+            {0, "No error."}
+        };
+
+        void PrintError(const char* const _file_name, const int _error_num, const std::string& _error_source) const
+        {
+            int error_code = -1;
+            if (FILE_OPEN_ERROR.find(_error_num) != FILE_OPEN_ERROR.end())
+            {
+                error_code = _error_num;
+            }
+
+            std::cerr << _error_source << " file: " << _file_name << "\n"
+                    << "ERROR: " << strerror(errno) << "\n"
+                    << "       " << FILE_OPEN_ERROR.at(error_code) << std::endl;
+        }
+
     private:
         void GetInputStream(const char _input_file_name[])
         {
             IN.open(_input_file_name);
             if (!IN.is_open()) // Check if the open operation failed
             {
-                std::cerr << "Failed to open input inputFile: " << _input_file_name << std::endl;
-
-                // Check for specific error conditions
-                if (IN.bad())
-                {
-                    std::cerr << "Fatal I/O error: bad-bit is set." << std::endl;
-                }
-
                 if (IN.fail())
                 {
-                    std::cerr << "ERROR: " << strerror(errno) << std::endl;
+                    PrintError(_input_file_name, errno, "Failed to open input");
+                    assert(IN);
                 }
 
-                assert(IN);
+                if (IN.bad())
+                {
+                    PrintError(_input_file_name, errno, "Fatal I/O error: bad-bit is set in input");
+                    assert(IN);
+                }
             }
         }
 
         void GetOutputStream(const char _output_file_name[])
         {
             OUT.open(_output_file_name);
-            if (!OUT.is_open())
+            if (!OUT.is_open()) // Check if the open operation failed
             {
-                std::cerr << "Failed to open output outputFile: " << _output_file_name << std::endl;
+                if (OUT.fail())
+                {
+                    PrintError(_output_file_name, errno, "Failed to open output");
+                    assert(OUT);
+                }
 
                 if (OUT.bad())
                 {
-                    std::cerr << "Fatal I/O error: bad-bit is set." << std::endl;
+                    PrintError(_output_file_name, errno, "Fatal I/O error: bad-bit is set in output");
+                    assert(OUT);
                 }
-
-                if (OUT.fail())
-                {
-                    std::cerr << "ERROR: " << strerror(errno) << std::endl;
-                }
-
-                assert(OUT);
             }
         }
 };
@@ -181,11 +202,12 @@ class Profiling
         std::chrono::time_point<std::chrono::system_clock> time_begin, time_end;
         std::chrono::duration<double, std::nano>           duration_nano = std::chrono::nanoseconds(0);
         const char*                                        functionName;
+        const char*                                        comment;
 
     public:
-        explicit Profiling(const char* _functionName)
+        explicit Profiling(const char* _functionName, const char* _comment)
+            : functionName(_functionName), comment(_comment)
         {
-            this->functionName = _functionName;
             Begin_Profiling();
         }
 
@@ -209,7 +231,8 @@ class Profiling
             std::cout << functionName << " : "
                     << duration_nano.count() / 1000000 << "ms | "
                     << duration_nano.count() / 1000 << "\xE6s | "
-                    << duration_nano.count() << "ns\n";
+                    << duration_nano.count() << "ns\n"
+                    << "       " << comment << "\n";
         }
 };
 #endif
@@ -241,7 +264,7 @@ void Add_Legacy()
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__FUNCTION__);
+    Profiling profiling = Profiling(__FUNCTION__, "Add two numbers from a file.");
     #endif
 
     if (std::rand() % 2)
