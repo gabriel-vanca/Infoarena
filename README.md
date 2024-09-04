@@ -1,4 +1,4 @@
-# <img src="Docs/Images/infoarena.png" alt="infoarena" style="float: right;" width="120"/> Infoarena
+# Infoarena <img src="Docs/Images/infoarena.png" alt="infoarena" style="float: right;" width="120"/> 
 
 Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena.ro/arhiva-educationala), the biggest Romanian online community helping thousands of young students learn and train for national and international Computer Science contests, supported by a team of former Olympic students.
 
