@@ -3,41 +3,20 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <random>
 #include <unordered_map>
 
 constexpr char INPUT_FILE_NAME[]  = "adunare.in";
 constexpr char OUTPUT_FILE_NAME[] = "adunare.out";
 
-class IO_LEGACY
+class IO_Base
 {
-    public:
-        FILE* IN  = nullptr;
-        FILE* OUT = nullptr;
-
-        enum class StreamType
-        {
-            READ,
-            WRITE
-        };
-
-        IO_LEGACY(const char input_file_name[], const char output_file_name[])
-        {
-            IN  = GetStream(input_file_name, StreamType::READ);
-            OUT = GetStream(output_file_name, StreamType::WRITE);
-        }
-
-        void Close_IN() const
-        {
-            CloseStream(IN);
-        }
-
-        void Close_OUT() const
-        {
-            CloseStream(OUT);
-        }
+    protected:
+        IO_Base()          = default;
+        virtual ~IO_Base() = default;
 
         // https://cplusplus.com/reference/system_error/errc/
-        std::unordered_map<int, const std::string> const FILE_OPEN_ERROR = {
+        const std::unordered_map<int, std::string> FILE_OPEN_ERROR = {
             {ENOENT, "File does not exist."},
             {EACCES, "Permission denied."},
             {EEXIST, "File already exists."},
@@ -49,23 +28,86 @@ class IO_LEGACY
             {0, "No error."}
         };
 
-        void PrintError(const char* const _file_name, const int _error_num, const std::string& _error_source) const
+        virtual void Close_IN() = 0;
+        virtual void Close_OUT() = 0;
+
+        virtual void PrintError(const char* const  _file_name,
+                                const int          _error_num,
+                                const std::string& _error_source) = 0;
+};
+
+
+class IO_LEGACY final : IO_Base
+{
+    // C I/O functions: https://en.cppreference.com/w/c/io
+
+    protected:
+        // The Singleton has a private constructor to prevent direct instantiation.
+        IO_LEGACY(const char input_file_name[], const char output_file_name[])
         {
-            int error_code = -1;
-            if (FILE_OPEN_ERROR.find(_error_num) != FILE_OPEN_ERROR.end())
+            IN  = GetStream(input_file_name, StreamType::READ);
+            OUT = GetStream(output_file_name, StreamType::WRITE);
+        }
+
+        // The Singleton has a private destructor to prevent deletion.
+        ~IO_LEGACY() override
+        {
+            is_instance_destroyed() = true;
+            IO_LEGACY::Close_IN();
+            IO_LEGACY::Close_OUT();
+        }
+
+    public:
+        FILE* IN  = nullptr;
+        FILE* OUT = nullptr;
+
+        // Delete copy constructor. Singletons should not be cloneable.
+        IO_LEGACY(const IO_LEGACY&) = delete;
+        // Delete move constructor. Singletons should not be movable.
+        IO_LEGACY(const IO_LEGACY&&) = delete;
+        // Delete assignment operator. Singletons should not be assignable.
+        IO_LEGACY& operator=(const IO_LEGACY&) = delete;
+
+        /* Singleton pattern. Only one instance of the class can exist.
+         * Thread safe: Initialization is guaranteed to happen only once.
+         * A static member object instance is declared. This object is only created
+         * the first time the function is called. Static local variables are
+         * guaranteed to be initialized only once, even in multithreaded environments.
+         * Subsequent calls to GetInstance() simply return the existing instance object.
+         * Returning reference instead of pointer further discourages attempts to delete.
+         */
+        static IO_LEGACY& GetInstance(const char input_file_name[], const char output_file_name[])
+        {
+            static IO_LEGACY io_Instance(input_file_name, output_file_name);
+
+            if (is_instance_destroyed())
             {
-                error_code = _error_num;
+                // We check for The Dead Reference Problem.
+                // Our singleton is designed to only be destroyed at program termination.
+                fprintf(stderr, "ERROR: Attempt to access destroyed singleton instance.\n");
+                assert(false);
             }
-            fprintf(stderr,
-                    "%s file: %s\nERROR: %s\n       %s\n",
-                    _error_source.c_str(),
-                    _file_name,
-                    strerror(errno),
-                    FILE_OPEN_ERROR.at(error_code).c_str());
+
+            return io_Instance;
         }
 
     private:
-        FILE* GetStream(const char fileName[], const StreamType _streamType) const
+        enum class StreamType
+        {
+            READ,
+            WRITE
+        };
+
+        static bool& is_instance_destroyed()
+        {
+            /* This variable is used to check for The Dead Reference Problem
+             * by enabling the class to check if its singleton has been destroyed.
+             */
+            static bool is_instance_destroyed = false;
+            return is_instance_destroyed;
+        }
+
+        FILE* GetStream(const char fileName[], const StreamType _streamType)
         {
             const char* _mode = nullptr;
             std::string _error_file_type;
@@ -104,58 +146,101 @@ class IO_LEGACY
         {
             fclose(file);
         }
-};
 
-
-class IO
-{
-    public:
-        std::ifstream IN;
-        std::ofstream OUT;
-
-        IO(const char input_file_name[], const char output_file_name[])
+        void Close_IN() override
         {
-            GetInputStream(input_file_name);
-            GetOutputStream(output_file_name);
+            CloseStream(IN);
         }
 
-        void Close_IN()
+        void Close_OUT() override
         {
-            IN.close();
+            CloseStream(OUT);
         }
 
-        void Close_OUT()
-        {
-            OUT.close();
-        }
-
-        // https://cplusplus.com/reference/system_error/errc/
-        std::unordered_map<int, const std::string> const FILE_OPEN_ERROR = {
-            {ENOENT, "File does not exist."},
-            {EACCES, "Permission denied."},
-            {EEXIST, "File already exists."},
-            {EISDIR, "File is a directory."},
-            {ENOSPC, "No space left on device."},
-            {EROFS, "Read-only file system."},
-            {ETXTBSY, "Text file busy."},
-            {-1, "Unlisted error type."},
-            {0, "No error."}
-        };
-
-        void PrintError(const char* const _file_name, const int _error_num, const std::string& _error_source) const
+        void PrintError(const char* const  _file_name,
+                        const int          _error_num,
+                        const std::string& _error_source) override
         {
             int error_code = -1;
             if (FILE_OPEN_ERROR.find(_error_num) != FILE_OPEN_ERROR.end())
             {
                 error_code = _error_num;
             }
+            fprintf(stderr,
+                    "%s file: %s\nERROR: %s\n       %s\n",
+                    _error_source.c_str(),
+                    _file_name,
+                    strerror(errno),
+                    FILE_OPEN_ERROR.at(error_code).c_str());
+        }
+};
 
-            std::cerr << _error_source << " file: " << _file_name << "\n"
-                    << "ERROR: " << strerror(errno) << "\n"
-                    << "       " << FILE_OPEN_ERROR.at(error_code) << std::endl;
+
+class IO final : IO_Base
+{
+    // C++ I/O functions: https://en.cppreference.com/w/cpp/io
+
+    protected:
+        // The Singleton has a private constructor to prevent direct instantiation.
+        IO(const char input_file_name[], const char output_file_name[])
+        {
+            GetInputStream(input_file_name);
+            GetOutputStream(output_file_name);
+        }
+
+        // The Singleton has a private destructor to prevent deletion.
+        ~IO() override
+        {
+            is_instance_destroyed() = true;
+            Close_IN();
+            Close_OUT();
+        }
+
+    public:
+        // Don't make these nullptr. They are not pointers.
+        std::ifstream IN;
+        std::ofstream OUT;
+
+        // Delete copy constructor. Singletons should not be cloneable.
+        IO(const IO&) = delete;
+        // Delete move constructor. Singletons should not be movable.
+        IO(const IO&&) = delete;
+        // Delete assignment operator. Singletons should not be assignable.
+        IO& operator=(const IO&) = delete;
+
+        /* Singleton pattern. Only one instance of the class can exist.
+         * Thread safe: Initialization is guaranteed to happen only once.
+         * A static member object instance is declared. This object is only created
+         * the first time the function is called. Static local variables are
+         * guaranteed to be initialized only once, even in multithreaded environments.
+         * Subsequent calls to GetInstance() simply return the existing instance object.
+         * Returning reference instead of pointer further discourages attempts to delete.
+         */
+        static IO& GetInstance(const char input_file_name[], const char output_file_name[])
+        {
+            static IO io_Instance(input_file_name, output_file_name);
+
+            if (is_instance_destroyed())
+            {
+                // We check for The Dead Reference Problem.
+                // Our singleton is designed to only be destroyed at program termination.
+                std::cerr << "ERROR: Attempt to access destroyed singleton instance." << std::endl;
+                assert(false);
+            }
+
+            return io_Instance;
         }
 
     private:
+        static bool& is_instance_destroyed()
+        {
+            /* This variable is used to check for The Dead Reference Problem
+             * by enabling the class to check if its singleton has been destroyed.
+             */
+            static bool is_instance_destroyed = false;
+            return is_instance_destroyed;
+        }
+
         void GetInputStream(const char _input_file_name[])
         {
             IN.open(_input_file_name);
@@ -192,6 +277,31 @@ class IO
                     assert(OUT);
                 }
             }
+        }
+
+        void Close_IN() override final
+        {
+            IN.close();
+        }
+
+        void Close_OUT() override final
+        {
+            OUT.close();
+        }
+
+        void PrintError(const char* const  _file_name,
+                        const int          _error_num,
+                        const std::string& _error_source) final override
+        {
+            int error_code = -1;
+            if (FILE_OPEN_ERROR.find(_error_num) != FILE_OPEN_ERROR.end())
+            {
+                error_code = _error_num;
+            }
+
+            std::cerr << _error_source << " file: " << _file_name << "\n"
+                    << "ERROR: " << strerror(errno) << "\n"
+                    << "       " << FILE_OPEN_ERROR.at(error_code) << std::endl;
         }
 };
 
@@ -239,26 +349,28 @@ class Profiling
 
 void Add()
 {
-    IO io = IO(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
+    IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
     int a, b;
     io.IN >> a >> b;
-    io.Close_IN();
-
     io.OUT << a + b << std::endl;
-    io.Close_OUT();
 }
 
 void Add_Legacy()
 {
-    const IO_LEGACY io = IO_LEGACY(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
+    IO_LEGACY& io = IO_LEGACY::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
     int a, b;
     fscanf(io.IN, "%d %d", &a, &b);
-    io.Close_IN();
-
     fprintf(io.OUT, "%d\n", a + b);
-    io.Close_OUT();
+}
+
+bool randomBoolean()
+{
+    static std::default_random_engine generator(std::random_device{}());
+    // With p = 0.5 you get equal probability for true and false
+    static std::bernoulli_distribution distribution(0.5);
+    return distribution(generator);
 }
 
 int main()
@@ -267,7 +379,7 @@ int main()
     Profiling profiling = Profiling(__FUNCTION__, "Add two numbers from a file.");
     #endif
 
-    if (std::rand() % 2)
+    if (randomBoolean())
         Add();
     else
         Add_Legacy();
