@@ -342,7 +342,7 @@ class Profiling
                     << duration_nano.count() / 1000000 << "ms | "
                     << duration_nano.count() / 1000 << "\xE6s | "
                     << duration_nano.count() << "ns\n"
-                    << "       " << comment << "\n";
+                    << "             " << comment << "\n";
         }
 };
 #endif
@@ -376,7 +376,7 @@ bool randomBoolean()
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__FUNCTION__, "Add two numbers from a file.");
+    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "Add two numbers from a file.");
     #endif
 
     if (randomBoolean())
