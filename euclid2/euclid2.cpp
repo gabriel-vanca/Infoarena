@@ -1,9 +1,13 @@
 #include <cassert>
-#include <chrono>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <utility>
+
+#ifdef PROFILING
+#include <chrono>
+#endif
 
 constexpr char INPUT_FILE_NAME[]  = "euclid2.in";
 constexpr char OUTPUT_FILE_NAME[] = "euclid2.out";
@@ -206,17 +210,74 @@ class Profiling
 };
 #endif
 
+/* Using Euclid's algorithm to find the greatest common divisor (gcd).
+ * https://crypto.stanford.edu/pbc/notes/numbertheory/euclid.html
+ * https://en.algorithmica.org/hpc/algorithms/gcd/
+ */
+unsigned int euclid(unsigned int a, unsigned int b)
+{
+    if (b > a)
+    {
+        std::swap(a, b);
+    }
+
+    unsigned int remainder;
+
+    while (b > 0)
+    {
+        remainder = a % b;
+        a         = b;
+        b         = remainder;
+    }
+
+    return a;
+}
+
+unsigned int stein(int a, int b)
+{
+    if (a == 0) return b;
+    if (b == 0) return a;
+
+    int a_trailingzeros   = __builtin_ctz(a);
+    int b_trailingzeros   = __builtin_ctz(b);
+    int min_trailingzeros = std::min(a_trailingzeros, b_trailingzeros);
+    b >>= b_trailingzeros;
+
+    int difference;
+
+    while (a != 0)
+    {
+        a >>= a_trailingzeros;
+        difference      = std::abs(a - b);
+        a_trailingzeros = __builtin_ctz(difference);
+        b               = std::min(a, b);
+        a               = difference;
+    }
+
+    return b << min_trailingzeros;
+}
+
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "Add two numbers from a file.");
+    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "gcd(a, b)");
     #endif
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int a, b;
-    io.IN >> a >> b;
-    io.OUT << a + b << std::endl;
+    unsigned T_counter; // 1 ≤ T ≤ 100 000
+    unsigned a, b;      // 2 ≤ a, b ≤ 2 * 10^9
+
+    io.IN >> T_counter;
+
+    while (T_counter--)
+    {
+        io.IN >> a >> b;
+        if (T_counter % 2)
+            io.OUT << euclid(a, b) << "\n";
+        else
+            io.OUT << stein(static_cast<int>(a), static_cast<int>(b)) << "\n";
+    }
 
     #ifdef PROFILING
     profiling.End_Profiling();
