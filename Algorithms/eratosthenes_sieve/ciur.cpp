@@ -1,4 +1,5 @@
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iostream>
@@ -209,6 +210,36 @@ class Profiling
 };
 #endif
 
+bool check_prime(const int number)
+{
+    const int sqrt_number = std::ceil(std::sqrt(number));
+
+    for (int j = 3; j <= sqrt_number; j += 2)
+    {
+        if (number % j == 0)
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+int get_prime_numbers_count(int N)
+{
+    int counter = 1;
+
+    for (int i = 3; i <= N; i += 2)
+    {
+        if (check_prime(i))
+        {
+            counter++;
+        }
+    }
+
+    return counter;
+}
+
 int main()
 {
     #ifdef PROFILING
@@ -217,9 +248,10 @@ int main()
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int a, b;
-    io.IN >> a >> b;
-    io.OUT << a + b << std::endl;
+    int N; // 2 ≤ N ≤ 2 000 000
+
+    io.IN >> N;
+    io.OUT << get_prime_numbers_count(N) << std::endl;
 
     #ifdef PROFILING
     profiling.End_Profiling();
