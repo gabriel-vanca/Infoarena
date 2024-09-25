@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Ciur" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/Algorithms/eratosthenes_sieve" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Infoarena" TARGET_NAME="ciur.cpp" CONFIG_NAME="Ciur">
+    <option name="compilerOptions" value="-std=c++14 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -O3 -fdiagnostics-color=always -DPROFILING -g" />
+    <option name="sourceFile" value="D:\OneDrive - ANDROMEDA\Git Repositories\Infoarena\Algorithms\eratosthenes_sieve\ciur.cpp" />
+    <method v="2">
+      <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
