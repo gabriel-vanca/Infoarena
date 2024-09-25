@@ -212,6 +212,7 @@ class Profiling
 /* Using Euclid's algorithm to find the greatest common divisor (gcd).
  * https://crypto.stanford.edu/pbc/notes/numbertheory/euclid.html
  * https://en.algorithmica.org/hpc/algorithms/gcd/
+ * https://www.infoarena.ro/algoritmul-lui-euclid
  */
 unsigned int euclid(unsigned int a, unsigned int b)
 {

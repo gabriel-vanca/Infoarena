@@ -1,16 +1,17 @@
+#include <array>
 #include <cassert>
+#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
-#include <utility>
 
 #ifdef PROFILING
 #include <chrono>
 #endif
 
-constexpr char INPUT_FILE_NAME[]  = "euclid2.in";
-constexpr char OUTPUT_FILE_NAME[] = "euclid2.out";
+constexpr char INPUT_FILE_NAME[]  = "euclid3.in";
+constexpr char OUTPUT_FILE_NAME[] = "euclid3.out";
 
 class IO_Base
 {
@@ -210,78 +211,95 @@ class Profiling
 };
 #endif
 
-/* Using Euclid's algorithm to find the greatest common divisor (gcd).
- * https://crypto.stanford.edu/pbc/notes/numbertheory/euclid.html
- * https://en.algorithmica.org/hpc/algorithms/gcd/
- * https://www.infoarena.ro/algoritmul-lui-euclid
- */
-unsigned int euclid(unsigned int a, unsigned int b)
+struct euclid_solution
 {
-    if (b > a)
+    int gcd;
+    int Bezout_x;
+    int Bezout_y;
+};
+
+/* Using Euclid's extender algorithm to find the greatest common divisor (gcd).
+ * https://zerobone.net/blog/math/extended-euklidean-algorithm/
+ * https://www.infoarena.ro/algoritmul-lui-euclid
+ * https://crypto.stanford.edu/pbc/notes/numbertheory/euclid.html
+ */
+euclid_solution euclid_extended(int a, int b)
+{
+    bool swapped = false;
+    if (std::abs(b) > std::abs(a))
     {
         std::swap(a, b);
+        swapped = true;
     }
 
-    unsigned int remainder;
+    std::array<int, 3> a_coef = {1, 0}; // the coefficients of a (in order: previous, current, next)
+    std::array<int, 3> b_coef = {0, 1}; // the coefficients of b (in order: previous, current, next)
+    constexpr int      prev   = 0;
+    constexpr int      curr   = 1;
+    constexpr int      next   = 2;
 
-    while (b > 0)
+    int quotient;
+    int remainder;
+
+    while (b)
     {
-        remainder = a % b;
+        // Calculate GCD (simple Euclid)
+        quotient  = a / b;
+        remainder = a - quotient * b;
         a         = b;
         b         = remainder;
+
+        // Calculate the new coefficients (extended Euclid)
+        a_coef[next] = a_coef[prev] - quotient * a_coef[curr];
+        b_coef[next] = b_coef[prev] - quotient * b_coef[curr];
+
+        // Update the coefficients.
+        a_coef[prev] = a_coef[curr];
+        b_coef[prev] = b_coef[curr];
+        a_coef[curr] = a_coef[next];
+        b_coef[curr] = b_coef[next];
     }
 
-    return a;
-}
-
-/* Using Stein's algorithm to find the greatest common divisor (gcd).
- * https://en.algorithmica.org/hpc/algorithms/gcd/
- * https://en.wikipedia.org/wiki/Binary_GCD_algorithm
- */
-unsigned int stein(int a, int b)
-{
-    if (a == 0) return b;
-    if (b == 0) return a;
-
-    int a_trailingzeros   = __builtin_ctz(a);
-    int b_trailingzeros   = __builtin_ctz(b);
-    int min_trailingzeros = std::min(a_trailingzeros, b_trailingzeros);
-    b >>= b_trailingzeros;
-
-    int difference;
-
-    while (a != 0)
+    if (swapped)
     {
-        a >>= a_trailingzeros;
-        difference      = std::abs(a - b);
-        a_trailingzeros = __builtin_ctz(difference);
-        b               = std::min(a, b);
-        a               = difference;
+        std::swap(a_coef[prev], b_coef[prev]);
     }
 
-    return b << min_trailingzeros;
+    // Returns the gcd and the Bézout coefficients.
+    return {a, a_coef[prev], b_coef[prev]};
 }
 
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "gcd(a, b)");
+    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "Add two numbers from a file.");
     #endif
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    unsigned T_counter; // 1 ≤ T ≤ 100 000
-    unsigned a, b;      // 2 ≤ a, b ≤ 2 * 10^9
+    unsigned int T_counter; // 1 ≤ T ≤ 100
+    int          a, b;      // -1 000 000 000 ≤ a ≤ b ≤ 1 000 000 000
+    int          c;         // -2 000 000 000 ≤   c   ≤ 2 000 000 000 (not zero)
 
     io.IN >> T_counter;
 
     while (T_counter--)
     {
-        io.IN >> a >> b;
-        if (T_counter % 2)
-            io.OUT << euclid(a, b) << "\n";
+        io.IN >> a >> b >> c;
+
+        const auto solution   = euclid_extended(a, b);
+        const int  multiplier = c / solution.gcd;
+        const int  unsolvable = c - multiplier * solution.gcd;
+
+        if (unsolvable)
+        {
+            io.OUT << "0 0\n";
+        }
         else
-            io.OUT << stein(static_cast<int>(a), static_cast<int>(b)) << "\n";
+        {
+            io.OUT << solution.Bezout_x * multiplier << " "
+                    << solution.Bezout_y * multiplier << "\n";
+        }
     }
 
     #ifdef PROFILING
