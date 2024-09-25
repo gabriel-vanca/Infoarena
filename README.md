@@ -1,6 +1,8 @@
 # <img src="Docs/Images/infoarena.png" alt="infoarena" width="60"/> Infoarena
 
-Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena.ro/arhiva-educationala), the biggest Romanian online community helping thousands of young students learn and train for national and international Computer Science contests, supported by a team of former Olympic students.
+Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena.ro/arhiva-educationala), the biggest
+Romanian online community helping thousands of young students learn and train for national and international Computer
+Science contests, supported by a team of former Olympic students.
 
 <div style="text-align:center"> <img src="Docs/Images/Cpp_logo.svg" alt="C++" width="130"/> <img src="Docs/Images/Rust_logo.png" alt="Rust" width="154"/> <img src="Docs/Images/Python_logo.svg" alt="Python" width="156"/> <img src="Docs/Images/C_logo.svg" alt="C" width="148"/> <img src="Docs/Images/Java_logo.svg" alt="Java" width="150"/> </div>
 
@@ -8,11 +10,11 @@ Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena
 
 ## C++ Compile & Build Configurations
 
-|                              | Compiler       | Configuration                                                                                                      | OS               |
-|------------------------------|----------------|--------------------------------------------------------------------------------------------------------------------|------------------|
-| Repo                         | GNU G++ 14.1.0 | g++ -std=c++14 -O3<br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br> -fdiagnostics-color=always -DPROFILING -g | Windows 11       |
-| Infoarena                    | GNU G++ 10.2.0 | g++ -std=c++14 -Wall -O2<br>-DINFOARENA<br> -static … -lm                                                          | Debian 11        |
-| Departament <br>of Education | GNU G++        | g++ -std=c++11 -Wall -O2                                                                                           | Windows<br>Linux |
+|                              | Compiler       | Configuration                                                                                                  | OS               |
+|------------------------------|----------------|----------------------------------------------------------------------------------------------------------------|------------------|
+| Repo                         | GNU G++ 14.1.0 | g++ -std=c++14<br>-Wall -Wextra -Wpedantic -Wconversion -Wshadow<br> -fdiagnostics-color=always -DPROFILING -g | Windows 11       |
+| Infoarena                    | GNU G++ 10.2.0 | g++ -std=c++14 -Wall -O2<br>-DINFOARENA<br> -static … -lm                                                      | Debian 11        |
+| Departament <br>of Education | GNU G++        | g++ -std=c++11 -Wall -O2                                                                                       | Windows<br>Linux |
 
 ### Parameter Info
 
@@ -37,11 +39,11 @@ Solved Algorithm & Data Structure problems for [Infoarena](https://www.infoarena
 
 * [Infoarena - Compiler Info](https://www.infoarena.ro/documentatie/evaluator)
 * [National
-Society for Excellence and Performance in Computing (SEPI)](https://sepi.ro/page/oni2024regulament)
+  Society for Excellence and Performance in Computing (SEPI)](https://sepi.ro/page/oni2024regulament)
 * [Departament of
-Education - Compiler Info 2024](https://www.edu.ro/sites/default/files/_fi%C8%99iere/Minister/2024/olimpiade_concursuri_24/regulamente_olimpiade/Regulament_ONI_2024.pdf)
+  Education - Compiler Info 2024](https://www.edu.ro/sites/default/files/_fi%C8%99iere/Minister/2024/olimpiade_concursuri_24/regulamente_olimpiade/Regulament_ONI_2024.pdf)
 * [Departament of
-Education - Compiler Info 2015](https://olimpiada.info/oji2015/precizari2015.pdf)
+  Education - Compiler Info 2015](https://olimpiada.info/oji2015/precizari2015.pdf)
 * [G++ Options That Control Optimization](https://gcc.gnu.org/onlinedocs/gcc/Optimize-Options.html)
 * [G++ Options to Request or Suppress Warnings](https://gcc.gnu.org/onlinedocs/gcc/Warning-Options.html#index-Wshadow)
 * [G++ Options Summary](https://gcc.gnu.org/onlinedocs/gcc/Option-Summary.html)
