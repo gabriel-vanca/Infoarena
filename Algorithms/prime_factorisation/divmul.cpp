@@ -1,17 +1,19 @@
-#include <array>
+#include <bitset>
+#include <cmath>
+#include <vector>
 #include <cassert>
-#include <cstdlib>
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <unordered_map>
 
 #ifdef PROFILING
 #include <chrono>
 #endif
 
-constexpr char INPUT_FILE_NAME[]  = "euclid3.in";
-constexpr char OUTPUT_FILE_NAME[] = "euclid3.out";
+constexpr char INPUT_FILE_NAME[]  = "divmul.in";
+constexpr char OUTPUT_FILE_NAME[] = "divmul.out";
 
 class IO_Base
 {
@@ -212,95 +214,180 @@ class Profiling
 };
 #endif
 
-struct euclid_solution
-{
-    int gcd;
-    int Bezout_x;
-    int Bezout_y;
-};
-
-/* Using Euclid's extender algorithm to find the greatest common divisor (gcd).
- * https://zerobone.net/blog/math/extended-euklidean-algorithm/
- * https://www.infoarena.ro/algoritmul-lui-euclid
- * https://crypto.stanford.edu/pbc/notes/numbertheory/euclid.html
+/* Notes on performance:
+ *   - bitset is the fastest, but size must be known at compile time
+ *      which means it is not the most memory efficient
+ *   - vector<bool> implements bits optimisation and the size can
+ *      be set at run-time which makes it the most memory efficient
+ *      by far, but slightly slower than bitset (1-2ms) due to the
+ *      extra bit-calculations. O2 and O3 greatly enhance speed.
+ *   - bool[] is usually faster than array<bool> but slower than vector<bool>;
+ *      as size is determined at run-time, it is more memory efficient than array<bool>
+ *      Variable Length Arrays (VLA) are however very buggy and not recommended.
+ *   - array<bool> is the least memory efficient as size has to be known
+ *      at compile-time and doesn't have the bits optimisations
+ *      of vector<bool>; it is also slightly slower
+ *      than vector<bool> (1-3ms) and than bool[] (1-2ms), making it both
+ *      the slowest and the least memory efficient solution.
+ *
+ *   As we are more time limited (50ms) than memory-limited (7Mb),
+ *      we have chosen bitset.
+ *   Our bitset memory performance: 303kb memory.
  */
-euclid_solution euclid_extended(int a, int b)
+
+/* Eratosthenes' sieve with Sundaram optimisation
+ *                        & bit optimisation
+ *                        & memory optimisation
+ *
+ * https://web.archive.org/web/20240304075320/https://infoarena.ro/ciurul-lui-eratostene
+ * https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+ * https://en.wikipedia.org/wiki/Sieve_of_Sundaram
+ */
+
+std::vector<unsigned int> get_prime_numbers(const unsigned int N = 10'100)
 {
-    bool swapped = false;
-    if (std::abs(b) > std::abs(a))
+    constexpr unsigned int UPPER_RANGE = 10'100 / 2 + 1;
+    const unsigned int     N_half      = N / 2;
+    const unsigned int     N_sqrt      = std::ceil(std::sqrt(N));
+
+    /*
+     * sieve[i] == false if 2*i + 1 is prime
+     */
+    std::bitset<UPPER_RANGE> sieve; // zero-initialised
+
+    for (unsigned int i = 1; i <= N_sqrt; i++)
     {
-        std::swap(a, b);
-        swapped = true;
+        if (!sieve[i])
+        {
+            const unsigned int i_double = i << 1;
+
+            for (unsigned int j = (i + 1) * i_double; j < N_half; j += i_double + 1)
+            {
+                sieve[j] = true;
+            }
+        }
     }
 
-    std::array<int, 3> a_coef = {1, 0}; // the coefficients of a (in order: previous, current, next)
-    std::array<int, 3> b_coef = {0, 1}; // the coefficients of b (in order: previous, current, next)
-    constexpr int      prev   = 0;
-    constexpr int      curr   = 1;
-    constexpr int      next   = 2;
-
-    int quotient;
-    int remainder;
-
-    while (b)
+    /* bitset.count returns the number of bits that are set to true.
+     * 1ms faster than a for loop.
+     */
+    const unsigned int        prime_count = N_half - sieve.count();
+    std::vector<unsigned int> primes(prime_count);
+    primes[0] = 2;
+    for (unsigned int i = 1, j = 1; j < prime_count; i++)
     {
-        // Calculate GCD (simple Euclid)
-        quotient  = a / b;
-        remainder = a - quotient * b;
-        a         = b;
-        b         = remainder;
-
-        // Calculate the new coefficients (extended Euclid)
-        a_coef[next] = a_coef[prev] - quotient * a_coef[curr];
-        b_coef[next] = b_coef[prev] - quotient * b_coef[curr];
-
-        // Update the coefficients.
-        a_coef[prev] = a_coef[curr];
-        b_coef[prev] = b_coef[curr];
-        a_coef[curr] = a_coef[next];
-        b_coef[curr] = b_coef[next];
+        if (!sieve[i])
+        {
+            primes[j++] = 2 * i + 1;
+        }
     }
 
-    if (swapped)
+    return primes;
+}
+
+// We pass the vector primes by reference to avoid copying.
+// std::map<unsigned int, unsigned int> factorise(unsigned int N, const std::vector<unsigned int>& primes)
+unsigned int factorise(unsigned int N, const std::vector<unsigned int>& primes)
+{
+    //std::map<unsigned int, unsigned int> factors;
+    unsigned int factors_counter = 1 - (N & 1);
+
+    while ((N & 1) == 0)
     {
-        std::swap(a_coef[prev], b_coef[prev]);
+        N >>= 1;
     }
 
-    // Returns the gcd and the Bézout coefficients.
-    return {a, a_coef[prev], b_coef[prev]};
+    for (const auto& prime : primes)
+    {
+        if (N == 1)
+        {
+            break;
+        }
+
+        if (prime * prime > N)
+        {
+            break;
+        }
+
+        if (N % prime == 0)
+        {
+            factors_counter++;
+
+            do
+            {
+                // factors[prime]++;
+                N /= prime;
+            }
+            while (N % prime == 0);
+        }
+    }
+
+    if (N > 1)
+    {
+        factors_counter++;
+    }
+
+    return factors_counter;
 }
 
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__PRETTY_FUNCTION__);
+    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "Fast prime factorisation.");
     #endif
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    unsigned int T_counter; // 1 ≤ T ≤ 100
-    int          a, b;      // -1 000 000 000 ≤ a ≤ b ≤ 1 000 000 000
-    int          c;         // -2 000 000 000 ≤   c   ≤ 2 000 000 000 (not zero)
+    /* Get the prime numbers up to 10'000.
+     * We use initialisation rather than assignment
+     * so as to trigger named return value optimization (NRVO)
+     * and therefore avoid copying.
+     */
+    const auto primes = get_prime_numbers();
 
+    unsigned int T_counter; // 1 ≤ T ≤ 30'000
     io.IN >> T_counter;
 
     while (T_counter--)
     {
-        io.IN >> a >> b >> c;
+        unsigned int gcd, lcm;
+        io.IN >> gcd; // 2 ≤ gcd ≤ 10.000
+        io.IN >> lcm; // 2 ≤ lcm ≤ 100.000.000
 
-        const auto solution   = euclid_extended(a, b);
-        const int  multiplier = c / solution.gcd;
-        const int  unsolvable = c - multiplier * solution.gcd;
+        if (lcm == gcd)
+        {
+            io.OUT << "1\n";
+            continue;
+        }
 
-        if (unsolvable)
+        if (gcd > lcm)
         {
-            io.OUT << "0 0\n";
+            std::swap(gcd, lcm);
         }
-        else
+
+        if (lcm == 0 || gcd == 0 || gcd == 1 || lcm == 1)
         {
-            io.OUT << solution.Bezout_x * multiplier << " "
-                    << solution.Bezout_y * multiplier << "\n";
+            io.OUT << "0\n";
+            continue;
         }
+
+        if (lcm % gcd != 0)
+        {
+            io.OUT << "0\n";
+            continue;
+        }
+
+        const unsigned int differential    = lcm / gcd;
+        const unsigned int factors_counter = factorise(differential, primes);
+
+        /* We apply the combinatorics formula to determine the
+         * number of k-combinations for all k from 0 to n.
+         * ∑[k=0->n] C(n k) = 2^n
+         * \textstyle \sum _{0\leq {k}\leq {n}}{\binom {n}{k}}=2^{n}}
+         * https://gabriel-vanca.github.io/mathjax-viewer/?input=%7B%5Ctextstyle+%5Csum+_%7B0%5Cleq+%7Bk%7D%5Cleq+%7Bn%7D%7D%7B%5Cbinom+%7Bn%7D%7Bk%7D%7D%3D2%5E%7Bn%7D%7D
+         */
+        const unsigned long long int solution = 1ULL << factors_counter;
+        io.OUT << solution << "\n";
     }
 
     #ifdef PROFILING
@@ -309,3 +396,7 @@ int main()
 
     return 0;
 }
+
+
+
+

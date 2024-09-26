@@ -178,7 +178,7 @@ class Profiling
         const char*                                        comment;
 
     public:
-        explicit Profiling(const char* _functionName, const char* _comment)
+        explicit Profiling(const char* _functionName, const char* _comment = "")
             : functionName(_functionName), comment(_comment)
         {
             Begin_Profiling();
@@ -202,8 +202,9 @@ class Profiling
         void Show_Profiling_Results() const
         {
             std::cout << functionName << " : "
-                    << duration_nano.count() / 1000000 << "ms | "
-                    << duration_nano.count() / 1000 << "\xE6s | "
+                    << duration_nano.count() / 1'000'000'000 << "s | "
+                    << duration_nano.count() / 1'000'000 << "ms | "
+                    << duration_nano.count() / 1'000 << "\xE6s | "
                     << duration_nano.count() << "ns\n"
                     << "             " << comment << "\n";
         }

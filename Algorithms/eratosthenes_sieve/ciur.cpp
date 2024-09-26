@@ -179,7 +179,7 @@ class Profiling
         const char*                                        comment;
 
     public:
-        explicit Profiling(const char* _functionName, const char* _comment)
+        explicit Profiling(const char* _functionName, const char* _comment = "")
             : functionName(_functionName), comment(_comment)
         {
             Begin_Profiling();
@@ -203,8 +203,9 @@ class Profiling
         void Show_Profiling_Results() const
         {
             std::cout << functionName << " : "
-                    << duration_nano.count() / 1000000 << "ms | "
-                    << duration_nano.count() / 1000 << "\xE6s | "
+                    << duration_nano.count() / 1'000'000'000 << "s | "
+                    << duration_nano.count() / 1'000'000 << "ms | "
+                    << duration_nano.count() / 1'000 << "\xE6s | "
                     << duration_nano.count() << "ns\n"
                     << "             " << comment << "\n";
         }
@@ -221,6 +222,7 @@ class Profiling
  *      extra bit-calculations. O2 and O3 greatly enhance speed.
  *   - bool[] is usually faster than array<bool> but slower than vector<bool>;
  *      as size is determined at run-time, it is more memory efficient than array<bool>
+ *      Variable Length Arrays (VLA) are however very buggy and not recommended.
  *   - array<bool> is the least memory efficient as size has to be known
  *      at compile-time and doesn't have the bits optimisations
  *      of vector<bool>; it is also slightly slower
@@ -234,7 +236,7 @@ class Profiling
 
 /* Eratosthenes' sieve with Sundaram optimisation
  *                        & bit optimisation
- *                        & memory optimisations
+ *                        & memory optimisation
  *
  * https://web.archive.org/web/20240304075320/https://infoarena.ro/ciurul-lui-eratostene
  * https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
@@ -275,7 +277,7 @@ int main()
 {
     #ifdef PROFILING
     Profiling profiling = Profiling(__PRETTY_FUNCTION__,
-                                    "Eratosthenes' sieve with Sundaram optimisation & bit optimisation & memory optimisations.");
+                                    "Eratosthenes' sieve with Sundaram optimisation & bit optimisation & memory optimisation.");
     #endif
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
