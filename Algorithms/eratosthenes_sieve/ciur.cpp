@@ -241,7 +241,7 @@ class Profiling
  * https://en.wikipedia.org/wiki/Sieve_of_Sundaram
  */
 
-int get_prime_numbers_count(const unsigned int N)
+unsigned int get_prime_numbers_count(const unsigned int N)
 {
     constexpr unsigned int UPPER_RANGE = 2'000'000 / 2 + 1;
     const unsigned int     N_half      = N / 2;
@@ -252,28 +252,23 @@ int get_prime_numbers_count(const unsigned int N)
      */
     std::bitset<UPPER_RANGE> sieve; // zero-initialised
 
-    for (long long unsigned int i = 1; i <= N_sqrt; i++)
+    for (unsigned int i = 1; i <= N_sqrt; i++)
     {
         if (!sieve[i])
         {
-            const long long unsigned int i_double = i << 1;
+            const unsigned int i_double = i << 1;
 
-            for (long long unsigned int j = (i + 1) * i_double; j < N_half; j += i_double + 1)
+            for (unsigned int j = (i + 1) * i_double; j < N_half; j += i_double + 1)
             {
                 sieve[j] = true;
             }
         }
     }
 
-    int counter = 1; // count 2 as prime
-
-    for (unsigned int i = 1; i < N_half; i++)
-        if (!sieve[i])
-        {
-            counter++;
-        }
-
-    return counter;
+    /* bitset.count returns the number of bits that are set to true.
+     * 1ms faster than a for loop.
+     */
+    return N_half - sieve.count();
 }
 
 int main()
