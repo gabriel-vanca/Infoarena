@@ -1,3 +1,4 @@
+#include <bitset>
 #include <cassert>
 #include <cmath>
 #include <cstring>
@@ -210,32 +211,67 @@ class Profiling
 };
 #endif
 
-bool check_prime(const int number)
-{
-    const int sqrt_number = std::ceil(std::sqrt(number));
 
-    for (int j = 3; j <= sqrt_number; j += 2)
+/* Notes on performance:
+ *   - bitset is the fastest, but size must be known at compile time
+ *      which means it is not the most memory efficient
+ *   - vector<bool> implements bits optimisation and the size can
+ *      be set at run-time which makes it the most memory efficient
+ *      by far, but slightly slower than bitset (1-2ms) due to the
+ *      extra bit-calculations. O2 and O3 greatly enhance speed.
+ *   - bool[] is usually faster than array<bool> but slower than vector<bool>;
+ *      as size is determined at run-time, it is more memory efficient than array<bool>
+ *   - array<bool> is the least memory efficient as size has to be known
+ *      at compile-time and doesn't have the bits optimisations
+ *      of vector<bool>; it is also slightly slower
+ *      than vector<bool> (1-3ms) and than bool[] (1-2ms), making it both
+ *      the slowest and the least memory efficient solution.
+ *
+ *   As we are more time limited (50ms) than memory-limited (7Mb),
+ *      we have chosen bitset.
+ *   Our bitset memory performance: 303kb memory.
+ */
+
+/* Eratosthenes' sieve with Sundaram optimisation
+ *                        & bit optimisation
+ *                        & memory optimisations
+ *
+ * https://web.archive.org/web/20240304075320/https://infoarena.ro/ciurul-lui-eratostene
+ * https://en.wikipedia.org/wiki/Sieve_of_Eratosthenes
+ * https://en.wikipedia.org/wiki/Sieve_of_Sundaram
+ */
+
+int get_prime_numbers_count(const unsigned int N)
+{
+    constexpr unsigned int UPPER_RANGE = 2'000'000 / 2 + 1;
+    const unsigned int     N_half      = N / 2;
+    const unsigned int     N_sqrt      = std::ceil(std::sqrt(N));
+
+    /*
+     * sieve[i] == false if 2*i + 1 is prime
+     */
+    std::bitset<UPPER_RANGE> sieve; // zero-initialised
+
+    for (long long unsigned int i = 1; i <= N_sqrt; i++)
     {
-        if (number % j == 0)
+        if (!sieve[i])
         {
-            return false;
+            const long long unsigned int i_double = i << 1;
+
+            for (long long unsigned int j = (i + 1) * i_double; j < N_half; j += i_double + 1)
+            {
+                sieve[j] = true;
+            }
         }
     }
 
-    return true;
-}
+    int counter = 1; // count 2 as prime
 
-int get_prime_numbers_count(int N)
-{
-    int counter = 1;
-
-    for (int i = 3; i <= N; i += 2)
-    {
-        if (check_prime(i))
+    for (unsigned int i = 1; i < N_half; i++)
+        if (!sieve[i])
         {
             counter++;
         }
-    }
 
     return counter;
 }
@@ -243,12 +279,13 @@ int get_prime_numbers_count(int N)
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__PRETTY_FUNCTION__, "Add two numbers from a file.");
+    Profiling profiling = Profiling(__PRETTY_FUNCTION__,
+                                    "Eratosthenes' sieve with Sundaram optimisation & bit optimisation & memory optimisations.");
     #endif
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int N; // 2 ≤ N ≤ 2 000 000
+    unsigned int N; // 2 ≤ N ≤ 2 000 000
 
     io.IN >> N;
     io.OUT << get_prime_numbers_count(N) << std::endl;
@@ -259,3 +296,13 @@ int main()
 
     return 0;
 }
+
+
+
+
+
+
+
+
+
+
