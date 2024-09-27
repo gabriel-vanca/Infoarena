@@ -38,37 +38,37 @@ class IO_Base
                                 const std::string& _error_source) = 0;
 };
 
-
-class IO_LEGACY final : IO_Base
+class IO final : IO_Base
 {
-    // C I/O functions: https://en.cppreference.com/w/c/io
+    // C++ I/O functions: https://en.cppreference.com/w/cpp/io
 
     protected:
         // The Singleton has a private constructor to prevent direct instantiation.
-        IO_LEGACY(const char input_file_name[], const char output_file_name[])
+        IO(const char input_file_name[], const char output_file_name[])
         {
-            IN  = GetStream(input_file_name, StreamType::READ);
-            OUT = GetStream(output_file_name, StreamType::WRITE);
+            GetInputStream(input_file_name);
+            GetOutputStream(output_file_name);
         }
 
         // The Singleton has a private destructor to prevent deletion.
-        ~IO_LEGACY() override
+        ~IO() override
         {
             is_instance_destroyed() = true;
-            IO_LEGACY::Close_IN();
-            IO_LEGACY::Close_OUT();
+            Close_IN();
+            Close_OUT();
         }
 
     public:
-        FILE* IN  = nullptr;
-        FILE* OUT = nullptr;
+        // Don't make these nullptr. They are not pointers.
+        std::ifstream IN;
+        std::ofstream OUT;
 
         // Delete copy constructor. Singletons should not be cloneable.
-        IO_LEGACY(const IO_LEGACY&) = delete;
+        IO(const IO&) = delete;
         // Delete move constructor. Singletons should not be movable.
-        IO_LEGACY(const IO_LEGACY&&) = delete;
+        IO(const IO&&) = delete;
         // Delete assignment operator. Singletons should not be assignable.
-        IO_LEGACY& operator=(const IO_LEGACY&) = delete;
+        IO& operator=(const IO&) = delete;
 
         /* Singleton pattern. Only one instance of the class can exist.
          * Thread safe: Initialization is guaranteed to happen only once.
@@ -78,15 +78,15 @@ class IO_LEGACY final : IO_Base
          * Subsequent calls to GetInstance() simply return the existing instance object.
          * Returning reference instead of pointer further discourages attempts to delete.
          */
-        static IO_LEGACY& GetInstance(const char input_file_name[], const char output_file_name[])
+        static IO& GetInstance(const char input_file_name[], const char output_file_name[])
         {
-            static IO_LEGACY io_Instance(input_file_name, output_file_name);
+            static IO io_Instance(input_file_name, output_file_name);
 
             if (is_instance_destroyed())
             {
                 // We check for The Dead Reference Problem.
                 // Our singleton is designed to only be destroyed at program termination.
-                fprintf(stderr, "ERROR: Attempt to access destroyed singleton instance.\n");
+                std::cerr << "ERROR: Attempt to access destroyed singleton instance." << std::endl;
                 assert(false);
             }
 
@@ -94,12 +94,6 @@ class IO_LEGACY final : IO_Base
         }
 
     private:
-        enum class StreamType
-        {
-            READ,
-            WRITE
-        };
-
         static bool& is_instance_destroyed()
         {
             /* This variable is used to check for The Dead Reference Problem
@@ -109,74 +103,69 @@ class IO_LEGACY final : IO_Base
             return is_instance_destroyed;
         }
 
-        FILE* GetStream(const char fileName[], const StreamType _streamType)
+        void GetInputStream(const char _input_file_name[])
         {
-            const char* _mode = nullptr;
-            std::string _error_file_type;
-            switch (_streamType)
+            IN.open(_input_file_name);
+            if (!IN.is_open()) // Check if the open operation failed
             {
-                case StreamType::READ:
-                    {
-                        _mode            = "r";
-                        _error_file_type = "input";
-                        break;
-                    }
-                case StreamType::WRITE:
-                    {
-                        _mode            = "w";
-                        _error_file_type = "output";
-                        break;
-                    }
-            }
-            FILE* _file = fopen(fileName, _mode);
-            if (!_file)
-            {
-                PrintError(fileName, errno, "Failed to open " + _error_file_type);
-                assert(_file);
-            }
+                if (IN.fail())
+                {
+                    PrintError(_input_file_name, errno, "Failed to open input");
+                    assert(IN);
+                }
 
-            if (std::ferror(_file))
-            {
-                PrintError(fileName, errno, ": Error handling stream " + _error_file_type);
-                assert(false);
+                if (IN.bad())
+                {
+                    PrintError(_input_file_name, errno, "Fatal I/O error: bad-bit is set in input");
+                    assert(IN);
+                }
             }
-
-            return _file;
         }
 
-        static void CloseStream(FILE* file)
+        void GetOutputStream(const char _output_file_name[])
         {
-            fclose(file);
+            OUT.open(_output_file_name);
+            if (!OUT.is_open()) // Check if the open operation failed
+            {
+                if (OUT.fail())
+                {
+                    PrintError(_output_file_name, errno, "Failed to open output");
+                    assert(OUT);
+                }
+
+                if (OUT.bad())
+                {
+                    PrintError(_output_file_name, errno, "Fatal I/O error: bad-bit is set in output");
+                    assert(OUT);
+                }
+            }
         }
 
-        void Close_IN() override
+        void Close_IN() override final
         {
-            CloseStream(IN);
+            IN.close();
         }
 
-        void Close_OUT() override
+        void Close_OUT() override final
         {
-            CloseStream(OUT);
+            OUT.close();
         }
 
         void PrintError(const char* const  _file_name,
                         const int          _error_num,
-                        const std::string& _error_source) override
+                        const std::string& _error_source) final override
         {
             int error_code = -1;
             if (FILE_OPEN_ERROR.find(_error_num) != FILE_OPEN_ERROR.end())
             {
                 error_code = _error_num;
             }
-            fprintf(stderr,
-                    "%s file: %s\nERROR: %s\n       %s\n",
-                    _error_source.c_str(),
-                    _file_name,
-                    strerror(errno),
-                    FILE_OPEN_ERROR.at(error_code).c_str());
+
+            std::cerr << _error_source << " file: " << _file_name << "\n"
+                    << "ERROR: " << strerror(errno) << "\n"
+                    << "       " << FILE_OPEN_ERROR.at(error_code) << std::endl;
         }
 };
-
 
 #ifdef PROFILING
 class Profiling
@@ -221,17 +210,73 @@ class Profiling
 };
 #endif
 
+/* Exponentiation by squaring. Fast exponential in logarithmic time. O(log n)
+ * Exponentiation by squaring is a general method for fast computation of large positive integer powers of a number.
+ * It is based on the observation that, if the exponent n is even, then x^n = (x^2)^(n/2).
+ * If n is odd, then x^n = x * x^(n-1).
+ *      {\displaystyle x^{n}={\begin{cases}x\,(x^{2})^{(n-1)/2},&{\mbox{if }}n{\mbox{ is odd}}\\(x^{2})^{n/2},&{\mbox{if }}n{\mbox{ is even}}\end{cases}}}
+ *      https://gabriel-vanca.github.io/mathjax-viewer/?input=%7B%5Cdisplaystyle+x%5E%7Bn%7D%3D%7B%5Cbegin%7Bcases%7Dx%5C%2C%28x%5E%7B2%7D%29%5E%7B%28n-1%29%2F2%7D%2C%26%7B%5Cmbox%7Bif+%7D%7Dn%7B%5Cmbox%7B+is+odd%7D%7D%5C%5C%28x%5E%7B2%7D%29%5E%7Bn%2F2%7D%2C%26%7B%5Cmbox%7Bif+%7D%7Dn%7B%5Cmbox%7B+is+even%7D%7D%5Cend%7Bcases%7D%7D%7D
+ * This allows to divide the exponentiation process into two recursive steps.
+ * The algorithm is as follows:
+ * 1. If the exponent is 0, return 1.
+ * 2. If the exponent is even, return the square of the result of
+ *      recursively raising the base to the power of half the exponent.
+ * 3. If the exponent is odd, return the base times the square of the result of
+ *      recursively raising the base to the power of half the exponent.
+ * 4. If the exponent is negative then we can reuse the previous formula by
+ *      rewriting the value using a positive exponent:
+ *      {\displaystyle x^{n}=\left({\frac {1}{x}}\right)^{-n}\,.}
+ *      https://gabriel-vanca.github.io/mathjax-viewer/?input=%7B%5Cdisplaystyle+x%5E%7Bn%7D%3D%5Cleft%28%7B%5Cfrac+%7B1%7D%7Bx%7D%7D%5Cright%29%5E%7B-n%7D%5C%2C.%7D
+ * The algorithm is implemented iteratively to avoid the overhead of recursive function calls.
+ * The algorithm has a time complexity of O(log n) and a space complexity of O(log n).
+ * The algorithm can be used to calculate:
+ *      - the modular exponentiation of a number
+ *             The modular exponentiation of a number is the remainder of the number raised
+ *             to the power of the exponent divided by a modulus.
+ *      - combinatorics
+ *      - Fibonacci numbers
+ *      - matrix exponentiation
+ *      - number of paths of length k in a graph
+ * https://cp-algorithms.com/algebra/binary-exp.html
+ * https://en.wikipedia.org/wiki/Exponentiation_by_squaring
+ */
+
+unsigned long long FastExponential(unsigned long long int       base,
+                                   unsigned long long int       exponent,
+                                   const unsigned long long int mod)
+{
+    unsigned long long int result = 1;
+
+    while (exponent > 0)
+    {
+        if (exponent & 1) // If the exponent is odd
+        {
+            result = result * base % mod;
+            exponent--;
+        }
+
+        base = base * base % mod;
+        exponent >>= 1; // Divide the exponent by 2
+    }
+
+    return result;
+}
+
 int main()
 {
     #ifdef PROFILING
-    Profiling profiling = Profiling(__PRETTY_FUNCTION__);
+    Profiling profiling = Profiling(__PRETTY_FUNCTION__,
+                                    "Exponentiation by squaring. Fast exponential in logarithmic time. O(log n)");
     #endif
 
-    IO_LEGACY& io = IO_LEGACY::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
+    IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int a, b;
-    fscanf(io.IN, "%d %d", &a, &b);
-    fprintf(io.OUT, "%d\n", a + b);
+    constexpr unsigned long long int MOD = 1'999'999'973;
+    unsigned long long int           N; // Base.  2 ≤ N ≤ 2^32
+    unsigned long long int           P; // Exponent. 2 ≤ P ≤ 2^32
+
+    io.IN >> N >> P;
+    io.OUT << FastExponential(N, P, MOD) << std::endl;
 
     #ifdef PROFILING
     profiling.End_Profiling();
