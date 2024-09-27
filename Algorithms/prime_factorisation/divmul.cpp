@@ -1,12 +1,12 @@
 #include <bitset>
-#include <cmath>
-#include <vector>
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <map>
 #include <unordered_map>
+#include <vector>
 
 #ifdef PROFILING
 #include <chrono>
@@ -285,9 +285,24 @@ std::vector<unsigned int> get_prime_numbers(const unsigned int N = 10'100)
     return primes;
 }
 
+std::vector<unsigned int> get_prime_squared(const std::vector<unsigned int>& primes)
+{
+    std::vector<unsigned int> prime_squared(primes.size());
+
+    int i = 0;
+    for (const auto& prime : primes)
+    {
+        prime_squared[i++] = prime * prime;
+    }
+
+    return prime_squared;
+}
+
 // We pass the vector primes by reference to avoid copying.
 // std::map<unsigned int, unsigned int> factorise(unsigned int N, const std::vector<unsigned int>& primes)
-unsigned int factorise(unsigned int N, const std::vector<unsigned int>& primes)
+unsigned int factorise(unsigned int                     N,
+                       const std::vector<unsigned int>& primes,
+                       const std::vector<unsigned int>& primes_squared)
 {
     //std::map<unsigned int, unsigned int> factors;
     unsigned int factors_counter = 1 - (N & 1);
@@ -297,6 +312,8 @@ unsigned int factorise(unsigned int N, const std::vector<unsigned int>& primes)
         N >>= 1;
     }
 
+    int index = 0;
+
     for (const auto& prime : primes)
     {
         if (N == 1)
@@ -304,7 +321,7 @@ unsigned int factorise(unsigned int N, const std::vector<unsigned int>& primes)
             break;
         }
 
-        if (prime * prime > N)
+        if (primes_squared[index] > N)
         {
             break;
         }
@@ -320,6 +337,8 @@ unsigned int factorise(unsigned int N, const std::vector<unsigned int>& primes)
             }
             while (N % prime == 0);
         }
+
+        index++;
     }
 
     if (N > 1)
@@ -343,7 +362,8 @@ int main()
      * so as to trigger named return value optimization (NRVO)
      * and therefore avoid copying.
      */
-    const auto primes = get_prime_numbers();
+    const auto primes         = get_prime_numbers();
+    const auto primes_squared = get_prime_squared(primes);
 
     unsigned int T_counter; // 1 ≤ T ≤ 30'000
     io.IN >> T_counter;
@@ -378,7 +398,7 @@ int main()
         }
 
         const unsigned int differential    = lcm / gcd;
-        const unsigned int factors_counter = factorise(differential, primes);
+        const unsigned int factors_counter = factorise(differential, primes, primes_squared);
 
         /* We apply the combinatorics formula to determine the
          * number of k-combinations for all k from 0 to n.
