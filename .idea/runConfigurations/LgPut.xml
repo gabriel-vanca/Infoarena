@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="LgPut" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/Algorithms/fast_exponential" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Infoarena" TARGET_NAME="lgput.cpp" CONFIG_NAME="LgPut">
+    <option name="compilerOptions" value="-std=c++14 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -fdiagnostics-color=always -DPROFILING -g" />
+    <option name="sourceFile" value="D:\OneDrive - ANDROMEDA\Git Repositories\Infoarena\Algorithms\fast_exponential\lgput.cpp" />
+    <method v="2">
+      <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>

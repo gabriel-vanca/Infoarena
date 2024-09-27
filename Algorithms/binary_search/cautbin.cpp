@@ -215,7 +215,7 @@ class Profiling
 
 unsigned int log2_32(uint32_t value)
 {
-    const int tab32[32] = {
+    constexpr int tab32[32] = {
         0,
         9,
         1,
@@ -255,14 +255,14 @@ unsigned int log2_32(uint32_t value)
     value |= value >> 4;
     value |= value >> 8;
     value |= value >> 16;
-    return tab32[(uint32_t)(value * 0x07C4ACDD) >> 27];
+    return tab32[value * 0x07C4ACDD >> 27];
 }
 
 unsigned int binary_search(const std::vector<int>& numbers,
                            const int               _value,
-                           unsigned int            step,
                            const unsigned int      lower_bound,
-                           const unsigned int      upper_bound)
+                           const unsigned int      upper_bound,
+                           unsigned int            step)
 {
     unsigned int index = lower_bound;
     while (step)
@@ -279,14 +279,14 @@ unsigned int binary_search(const std::vector<int>& numbers,
 
 unsigned int reverse_binary_search(const std::vector<int>& numbers,
                                    const int               _value,
-                                   unsigned int            step,
                                    const unsigned int      lower_bound,
-                                   const unsigned int      upper_bound)
+                                   const unsigned int      upper_bound,
+                                   unsigned int            step)
 {
     unsigned int index = upper_bound;
     while (step)
     {
-        if (index - step >= lower_bound && numbers[index - step] >= _value)
+        if (index >= lower_bound + step && numbers[index - step] >= _value)
         {
             index -= step;
         }
@@ -307,12 +307,14 @@ int main()
     unsigned int array_size;
     io.IN >> array_size; // 1 ≤ array_size ≤ 100 000
 
-    std::vector<int>   numbers(array_size + 1); // INT_MIN ≤ numbers[i] ≤ INT_MAX; numbers[i] <= numbers[i+1]
-    const unsigned int log2_array_size = log2_32(array_size);
+    std::vector<int> numbers(array_size + 1); // INT_MIN ≤ numbers[i] ≤ INT_MAX; numbers[i] <= numbers[i+1]
     for (unsigned int i = 1; i <= array_size; i++)
     {
         io.IN >> numbers[i];
     }
+
+    const unsigned int log2_array_size = log2_32(array_size);
+    const unsigned int max_step        = 1 << log2_array_size;
 
     unsigned int queries_count; // 1 ≤ queries_count ≤ 100 000
     io.IN >> queries_count;
@@ -330,7 +332,7 @@ int main()
                     // Find the first occurrence of query_value in the array.
                     // If it exists, return the position of the last occurrence.
                     // If it doesn't exist, return -1.
-                    const unsigned int position = binary_search(numbers, query_value, log2_array_size, 1, array_size);
+                    const unsigned int position = binary_search(numbers, query_value, 1, array_size, max_step);
                     if (numbers[position] != query_value)
                     {
                         io.OUT << "-1\n";
@@ -344,7 +346,7 @@ int main()
             case 1:
                 {
                     // Find the last number smaller or equal than query_value.
-                    const unsigned int position = binary_search(numbers, query_value, log2_array_size, 1, array_size);
+                    const unsigned int position = binary_search(numbers, query_value, 1, array_size, max_step);
                     io.OUT << position << '\n';
                     break;
                 }
@@ -353,9 +355,9 @@ int main()
                     // Find the first number greater or equal than query_value.
                     const unsigned int position = reverse_binary_search(numbers,
                                                                         query_value,
-                                                                        log2_array_size,
                                                                         1,
-                                                                        array_size);
+                                                                        array_size,
+                                                                        max_step);
                     io.OUT << position << '\n';
                     break;
                 }
