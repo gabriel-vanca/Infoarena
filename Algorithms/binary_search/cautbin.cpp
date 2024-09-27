@@ -1,8 +1,11 @@
+#include <algorithm>
 #include <cassert>
+#include <cmath>
 #include <cstring>
 #include <fstream>
 #include <iostream>
 #include <unordered_map>
+#include <vector>
 
 #ifdef PROFILING
 #include <chrono>
@@ -210,6 +213,89 @@ class Profiling
 };
 #endif
 
+unsigned int log2_32(uint32_t value)
+{
+    const int tab32[32] = {
+        0,
+        9,
+        1,
+        10,
+        13,
+        21,
+        2,
+        29,
+        11,
+        14,
+        16,
+        18,
+        22,
+        25,
+        3,
+        30,
+        8,
+        12,
+        20,
+        28,
+        15,
+        17,
+        24,
+        7,
+        19,
+        27,
+        23,
+        6,
+        26,
+        5,
+        4,
+        31
+    };
+
+    value |= value >> 1;
+    value |= value >> 2;
+    value |= value >> 4;
+    value |= value >> 8;
+    value |= value >> 16;
+    return tab32[(uint32_t)(value * 0x07C4ACDD) >> 27];
+}
+
+unsigned int binary_search(const std::vector<int>& numbers,
+                           const int               _value,
+                           unsigned int            step,
+                           const unsigned int      lower_bound,
+                           const unsigned int      upper_bound)
+{
+    unsigned int index = lower_bound;
+    while (step)
+    {
+        if (index + step <= upper_bound && numbers[index + step] <= _value)
+        {
+            index += step;
+        }
+        step >>= 1;
+    }
+
+    return index;
+}
+
+unsigned int reverse_binary_search(const std::vector<int>& numbers,
+                                   const int               _value,
+                                   unsigned int            step,
+                                   const unsigned int      lower_bound,
+                                   const unsigned int      upper_bound)
+{
+    unsigned int index = upper_bound;
+    while (step)
+    {
+        if (index - step >= lower_bound && numbers[index - step] >= _value)
+        {
+            index -= step;
+        }
+        step >>= 1;
+    }
+
+    return index;
+}
+
 int main()
 {
     #ifdef PROFILING
@@ -218,9 +304,69 @@ int main()
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int a, b;
-    io.IN >> a >> b;
-    io.OUT << a + b << std::endl;
+    unsigned int array_size;
+    io.IN >> array_size; // 1 ≤ array_size ≤ 100 000
+
+    std::vector<int>   numbers(array_size + 1); // INT_MIN ≤ numbers[i] ≤ INT_MAX; numbers[i] <= numbers[i+1]
+    const unsigned int log2_array_size = log2_32(array_size);
+    for (unsigned int i = 1; i <= array_size; i++)
+    {
+        io.IN >> numbers[i];
+    }
+
+    unsigned int queries_count; // 1 ≤ queries_count ≤ 100 000
+    io.IN >> queries_count;
+
+    while (queries_count--)
+    {
+        short query_type;  // 0 ≤ query_type ≤ 2
+        int   query_value; // INT_MIN ≤ query_value ≤ INT_MAX
+        io.IN >> query_type >> query_value;
+
+        switch (query_type)
+        {
+            case 0:
+                {
+                    // Find the first occurrence of query_value in the array.
+                    // If it exists, return the position of the last occurrence.
+                    // If it doesn't exist, return -1.
+                    const unsigned int position = binary_search(numbers, query_value, log2_array_size, 1, array_size);
+                    if (numbers[position] != query_value)
+                    {
+                        io.OUT << "-1\n";
+                    }
+                    else
+                    {
+                        io.OUT << position << '\n';
+                    }
+                    break;
+                }
+            case 1:
+                {
+                    // Find the last number smaller or equal than query_value.
+                    const unsigned int position = binary_search(numbers, query_value, log2_array_size, 1, array_size);
+                    io.OUT << position << '\n';
+                    break;
+                }
+            case 2:
+                {
+                    // Find the first number greater or equal than query_value.
+                    const unsigned int position = reverse_binary_search(numbers,
+                                                                        query_value,
+                                                                        log2_array_size,
+                                                                        1,
+                                                                        array_size);
+                    io.OUT << position << '\n';
+                    break;
+                }
+            default:
+                {
+                    std::cerr << "ERROR: Invalid query type.\n";
+                    io.OUT << "ERROR: Invalid query type.\n";
+                    assert(false);
+                }
+        }
+    }
 
     #ifdef PROFILING
     profiling.End_Profiling();
