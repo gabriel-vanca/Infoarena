@@ -2,6 +2,7 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <unordered_map>
 
 #ifdef PROFILING
@@ -218,9 +219,33 @@ int main()
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int a, b;
-    io.IN >> a >> b;
-    io.OUT << a + b << std::endl;
+    // Read the entire file into a buffer.
+    std::ostringstream buffer;
+    buffer << io.IN.rdbuf();
+    // Convert the buffer into a string.
+    std::string contents(buffer.str());
+
+    unsigned int long long word_count   = 0;
+    unsigned int long long letter_count = 0;
+    bool                   valid_word   = false;
+    for (const char& c : contents)
+    {
+        if (isalpha(c))
+        {
+            letter_count++;
+            valid_word = true;
+        }
+        else
+        {
+            if (valid_word)
+            {
+                word_count++;
+                valid_word = false;
+            }
+        }
+    }
+
+    io.OUT << letter_count / word_count << std::endl;
 
     #ifdef PROFILING
     profiling.End_Profiling();
