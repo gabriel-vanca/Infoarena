@@ -2,7 +2,11 @@
 #include <cstring>
 #include <fstream>
 #include <iostream>
+#include <memory>
+#include <queue>
+#include <sstream>
 #include <unordered_map>
+#include <vector>
 
 #ifdef PROFILING
 #include <chrono>
@@ -10,6 +14,14 @@
 
 constexpr char INPUT_FILE_NAME[]  = "bfs.in";
 constexpr char OUTPUT_FILE_NAME[] = "bfs.out";
+
+class IO_Base;
+class IO;
+class Profiling;
+
+class Vertex;
+class Edge;
+class Graph;
 
 class IO_Base
 {
@@ -210,6 +222,160 @@ class Profiling
 };
 #endif
 
+class Edge
+{
+    public:
+        const Vertex* origin;
+        const Vertex* destination;
+
+        Edge(const Vertex* _origin, const Vertex* _destination)
+            : origin(_origin), destination(_destination)
+        {
+        }
+
+        ~Edge() = default;
+};
+
+class Vertex
+{
+    protected:
+        std::vector<std::unique_ptr<Edge>> edges;
+
+    public:
+        const unsigned int id;
+        mutable int        distance = -1;
+
+        explicit Vertex(const unsigned int _id)
+            : id(_id)
+        {
+        }
+
+        ~Vertex() = default;
+        // Delete copy constructor. Vertices should not be cloneable.
+        Vertex(const Vertex&) = delete;
+        // Delete assignment operator. Vertices should not be assignable.
+        Vertex& operator=(const Vertex&) = delete;
+
+        void AddVertex(Vertex* _destination)
+        {
+            edges.push_back(std::make_unique<Edge>(this, _destination));
+        }
+
+        long long unsigned int GetNumberOfEdges() const
+        {
+            return edges.size();
+        }
+
+        const Vertex* operator[](const unsigned int _index) const
+        {
+            return edges[_index]->destination;
+        }
+
+        bool operator ==(const Vertex& _vertex) const
+        {
+            return id == _vertex.id;
+        }
+
+        bool operator !=(const Vertex& _vertex) const
+        {
+            return id != _vertex.id;
+        }
+};
+
+class Graph
+{
+    protected:
+        std::vector<Vertex*> vertices;
+
+    public:
+        explicit Graph(const unsigned int _size)
+        {
+            vertices.reserve(_size + 1);
+            for (unsigned int i = 0; i <= _size; ++i)
+            {
+                vertices.push_back(new Vertex(i));
+            }
+        }
+
+        void AddVertex(const unsigned int _origin_id, const unsigned int _destination_id) const
+        {
+            Vertex* _origin      = vertices[_origin_id];
+            Vertex* _destination = vertices[_destination_id];
+            _origin->AddVertex(_destination);
+        }
+
+        Vertex* operator [](const unsigned int _index) const
+        {
+            return vertices[_index];
+        }
+
+        long long unsigned int GetNumberOfVertices() const
+        {
+            return vertices.size() - 1;
+        }
+
+        bool IsEmpty() const
+        {
+            return GetNumberOfVertices() == 0;
+        }
+
+        ~Graph()
+        {
+            for (const auto& vertex : vertices)
+            {
+                delete vertex;
+            }
+        }
+
+        void BreadthFirstSearch(const unsigned int _source_vertex_id) const
+        {
+            std::queue<const Vertex*> vertex_queue;
+            const Vertex*             source_vertex = vertices[_source_vertex_id];
+            source_vertex->distance                 = 0;
+            vertex_queue.push(source_vertex);
+
+            while (!vertex_queue.empty())
+            {
+                const Vertex* current_vertex = vertex_queue.front();
+                vertex_queue.pop();
+
+                for (unsigned int i = 0; i < current_vertex->GetNumberOfEdges(); ++i)
+                {
+                    const Vertex* neighbour_vertex = (*current_vertex)[i];
+                    if (neighbour_vertex->distance != -1)
+                    {
+                        // Vertex is either the source or has been visited.
+                        // Nothing to do. Skip to the next neighbour.
+                        continue;
+                    }
+
+                    // Vertex has not been visited yet.
+                    // Set the distance and add it to the queue.
+                    neighbour_vertex->distance = current_vertex->distance + 1;
+                    vertex_queue.push(neighbour_vertex);
+                }
+            }
+        }
+
+        std::string PrintDistances() const
+        {
+            std::ostringstream out;
+            for (unsigned int i = 1; i <= GetNumberOfVertices(); ++i)
+            {
+                out << vertices[i]->distance << " ";
+            }
+
+            out.seekp(-1);
+            out << "\n";
+
+            #ifdef PROFILING
+            std::cout << out.str();
+            #endif
+
+            return out.str();
+        }
+};
+
 int main()
 {
     #ifdef PROFILING
@@ -218,9 +384,23 @@ int main()
 
     IO& io = IO::GetInstance(INPUT_FILE_NAME, OUTPUT_FILE_NAME);
 
-    int a, b;
-    io.IN >> a >> b;
-    io.OUT << a + b << std::endl;
+    unsigned int NumberOfVertices; // 2 ≤ NumberOfVertices ≤ 100'000
+    unsigned int NumberOfEdges;    // 1 ≤ NumberOfEdges ≤ 1'000'000
+    unsigned int SourceVertex;
+
+    io.IN >> NumberOfVertices >> NumberOfEdges >> SourceVertex;
+
+    const Graph graph(NumberOfVertices);
+
+    for (unsigned int i = 0; i < NumberOfEdges; ++i)
+    {
+        unsigned int origin, destination;
+        io.IN >> origin >> destination;
+        graph.AddVertex(origin, destination);
+    }
+
+    graph.BreadthFirstSearch(SourceVertex);
+    io.OUT << graph.PrintDistances();
 
     #ifdef PROFILING
     profiling.End_Profiling();
