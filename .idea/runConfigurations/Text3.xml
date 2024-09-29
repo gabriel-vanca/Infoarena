@@ -1,0 +1,9 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Text3" type="CppFileRunConfiguration" factoryName="CppFileRunConfiguration" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" EMULATE_TERMINAL="false" WORKING_DIR="file://$PROJECT_DIR$/Tasks/text3" PASS_PARENT_ENVS_2="true" PROJECT_NAME="Infoarena" TARGET_NAME="text3.cpp" CONFIG_NAME="Text3">
+    <option name="compilerOptions" value="-std=c++14 -Wall -Wextra -Wpedantic -Wconversion -Wshadow -fdiagnostics-color=always -DPROFILING -g" />
+    <option name="sourceFile" value="D:\OneDrive - ANDROMEDA\Git Repositories\Infoarena\Tasks\text3\text3.cpp" />
+    <method v="2">
+      <option name="com.jetbrains.cidr.cpp.runfile.CppFileBuildBeforeRunTaskProvider$BasicBuildBeforeRunTask" enabled="true" />
+    </method>
+  </configuration>
+</component>
